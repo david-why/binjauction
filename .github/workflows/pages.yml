@@ -38,6 +38,7 @@ jobs:
       - name: Install and build
         run: |
           cd web
+          echo "VITE_BACKEND_BASE_URL = ${{ vars.BACKEND_URL }}" > .env.prod
           yarn install
           yarn build
 
