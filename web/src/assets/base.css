@@ -1,52 +1,50 @@
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
+  --pal-foreground: #1c1c1e;
+  --pal-accent: #d4af37;
+  --pal-accent-hover: #b88f2e;
+  --pal-background: #f5f1e6;
+  --pal-background-mute: #e6e1d8;
+  --pal-secondary: #6d2e46;
+  --pal-contrast: #4a6274;
+  --pal-contrast-hover: #3e4f5c;
 
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
-
-  --vt-c-indigo: #2c3e50;
-
-  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
-
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+  --pal-dark-background: #121417;
+  --pal-dark-background-mute: #181a1d;
+  --pal-dark-accent: #c9a227;
+  --pal-dark-accent-hover: #b38a1f;
+  --pal-dark-foreground: #d8d2c1;
+  --pal-dark-secondary: #581c35;
+  --pal-dark-contrast: #4d6774;
+  --pal-dark-contrast-hover: #3f565c;
 }
 
 /* semantic color variables for this project */
 :root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
+  --color-background: var(--pal-background);
+  --color-background-mute: var(--pal-background-mute);
+  --color-accent: var(--pal-accent);
+  --color-accent-hover: var(--pal-accent-hover);
+  --color-secondary: var(--pal-secondary);
+  --color-contrast: var(--pal-contrast);
+  --color-contrast-hover: var(--pal-accent-hover);
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
+  --color-text: var(--pal-foreground);
 
   --section-gap: 160px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-background: var(--pal-dark-background);
+    --color-background-mute: var(--pal-dark-background-mute);
+    --color-accent: var(--pal-dark-accent);
+    --color-accent-hover: var(--pal-dark-accent-hover);
+    --color-secondary: var(--pal-dark-secondary);
+    --color-contrast: var(--pal-dark-contrast);
+    --color-contrast-hover: var(--pal-dark-accent-hover);
 
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    --color-text: var(--pal-dark-foreground);
   }
 }
 
@@ -54,6 +52,9 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  transition:
+    color 0.5s,
+    background-color 0.5s;
 }
 
 html,
@@ -66,9 +67,6 @@ body {
   min-height: 100vh;
   color: var(--color-text);
   background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
   line-height: 1.6;
   font-family:
     Inter,

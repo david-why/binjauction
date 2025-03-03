@@ -5,14 +5,12 @@ import { RouterView } from 'vue-router'
 <template>
   <nav class="navbar">
     <img src="@/assets/logo.svg" style="height: 1em" />
-    <!-- <span style="height: 1em"> -->
     <span><strong>Silent Auction</strong></span>
-    <!-- </span> -->
     <RouterLink to="/">Home</RouterLink>
     <RouterLink to="/about">About</RouterLink>
   </nav>
 
-  <main>
+  <main class="content">
     <RouterView />
   </main>
 </template>
@@ -22,7 +20,11 @@ import { RouterView } from 'vue-router'
   display: flex;
   align-items: center;
   padding: 1em;
-  background-color: var(--color-background-mute);
   gap: 1em;
+}
+
+.content {
+  padding: 1em;
+  border-top: 1px solid var(--color-background-mute);
 }
 </style>
