@@ -1,0 +1,12 @@
+name = "binjauction"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-02-14"
+
+[vars]
+NODE_VERSION = "20.18.2"
+VITE_BACKEND_BASE_URL = "/api"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "binjauction"
+database_id = "80b8fdc7-cc4c-4f35-9499-46c94e4d7c22"

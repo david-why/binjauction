@@ -1,0 +1,16 @@
+{
+  "include": [
+    "**/*.ts",
+    "../src/auction.d.ts"
+  ],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": [
+      "esnext"
+    ],
+    "types": [
+      "@cloudflare/workers-types"
+    ]
+  }
+}

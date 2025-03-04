@@ -27,7 +27,7 @@ onMounted(async () => {
   <h2>Works</h2>
 
   <div v-if="loading">Loading works, please wait... <LoaderIcon></LoaderIcon></div>
-  <div v-else-if="!works.length"></div>
+  <div v-else-if="!works.length">No works yet. Please check back later!</div>
   <ul v-else class="works-list">
     <div v-for="work in displayWorks" :key="work.id">
       <li>
