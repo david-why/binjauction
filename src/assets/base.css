@@ -52,9 +52,6 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  transition:
-    color 0.5s,
-    background-color 0.5s;
 }
 
 html,

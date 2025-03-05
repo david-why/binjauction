@@ -4,15 +4,24 @@ declare global {
     name: string
     description: string
     img: string
-    highestBid: Omit<Bid, "phone">
+  }
+
+  declare interface WorkDetail extends Work {
+    highestBid: Bid | null
   }
 
   declare interface Bid {
     id: string
     amount: number
-    name: string
-    phone: string
+    user: Omit<User, 'phone'>
     timestamp: number
+  }
+
+  declare interface User {
+    id: string
+    name: string
+    role: number
+    phone: string
   }
 }
 

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import LoaderIcon from '@/components/LoaderIcon.vue'
+import WorkCard from '@/components/WorkCard.vue'
 import { fetchWorks } from '@/service'
 import { computed, onMounted, ref } from 'vue'
 
 const loading = ref(true)
-const works = ref<Work[]>([])
+const works = ref<WorkDetail[]>([])
 
 const displayWorks = computed(() => {
   return works.value.map((work) => {
@@ -24,19 +25,29 @@ onMounted(async () => {
 <template>
   <h1>Silent Auction</h1>
 
-  <h2>Works</h2>
-
   <div v-if="loading">Loading works, please wait... <LoaderIcon></LoaderIcon></div>
   <div v-else-if="!works.length">No works yet. Please check back later!</div>
   <ul v-else class="works-list">
-    <div v-for="work in displayWorks" :key="work.id">
-      <li>
+    <li v-for="work in displayWorks" :key="work.id" class="work-item">
+      <!-- <div>
+        <h3 class="work-title">{{ work.name }}</h3>
         <div>
-          <h3>{{ work.name }}</h3>
-          <p>{{ work.description }}</p>
-          <p>Current bid: {{ work.dispBid }}</p>
+          <a :href="work.img" target="_blank"><img :src="work.img" class="work-image" /></a>
         </div>
-      </li>
-    </div>
+        <p>{{ work.description }}</p>
+        <p>Current bid: {{ work.dispBid }}</p>
+      </div> -->
+      <WorkCard :work="work"></WorkCard>
+    </li>
   </ul>
 </template>
+
+<style scoped>
+.works-list {
+  list-style: none;
+  padding: 0;
+}
+.work-item + .work-item {
+  margin-top: 1em;
+}
+</style>

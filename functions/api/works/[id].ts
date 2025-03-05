@@ -1,4 +1,4 @@
-const GET_WORKS_SQL = `
+const GET_WORK_SQL = `
 WITH RankedBids AS (
     SELECT
         b.work_id,
@@ -22,7 +22,8 @@ SELECT
     u.role AS user_role
 FROM works w
 LEFT JOIN RankedBids rb ON w.id = rb.work_id AND rb.rank = 1
-LEFT JOIN users u ON rb.user_id = u.id;
+LEFT JOIN users u ON rb.user_id = u.id
+WHERE w.id = ?;
 `
 
 declare interface WorksQueryRow {
@@ -39,22 +40,26 @@ declare interface WorksQueryRow {
 }
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
-  const value = await context.env.DB.prepare(GET_WORKS_SQL).run<WorksQueryRow>()
-  const works: WorkDetail[] = value.results.map((row) => ({
-    id: row.work_id,
-    name: row.work_name,
-    description: row.description,
-    img: row.img,
-    highestBid: row.highest_bid_id ? {
-      id: row.highest_bid_id,
-      amount: row.highest_bid!,
+  const id = context.params.id as string
+  const value = await context.env.DB.prepare(GET_WORK_SQL).bind(id).first<WorksQueryRow>()
+  if (!value) {
+    return Response.json({ error: 'Work not found' }, { status: 404 })
+  }
+  const work: WorkDetail = {
+    id: value.work_id,
+    name: value.work_name,
+    description: value.description,
+    img: value.img,
+    highestBid: value.highest_bid_id ? {
+      id: value.highest_bid_id,
+      amount: value.highest_bid!,
       user: {
-        id: row.user_id!,
-        name: row.user_name!,
-        role: row.user_role!,
+        id: value.user_id!,
+        name: value.user_name!,
+        role: value.user_role!,
       },
-      timestamp: row.highest_bid_timestamp!,
+      timestamp: value.highest_bid_timestamp!,
     } : null,
-  }))
-  return Response.json(works)
+  }
+  return Response.json(work)
 }

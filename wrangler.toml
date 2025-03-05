@@ -1,5 +1,6 @@
 name = "binjauction"
 pages_build_output_dir = "dist"
+compatibility_flags = [ "nodejs_compat" ]
 compatibility_date = "2025-02-14"
 
 [vars]
@@ -10,3 +11,7 @@ VITE_BACKEND_BASE_URL = "/api"
 binding = "DB"
 database_name = "binjauction"
 database_id = "80b8fdc7-cc4c-4f35-9499-46c94e4d7c22"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "binjauction-images"
