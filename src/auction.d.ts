@@ -13,7 +13,7 @@ declare global {
   declare interface Bid {
     id: string
     amount: number
-    user: Omit<User, 'phone'>
+    user: UserObfuscated
     timestamp: number
   }
 
@@ -22,6 +22,15 @@ declare global {
     name: string
     role: number
     phone: string
+  }
+
+  declare type UserObfuscated = Omit<User, 'phone'> & { obfsPhone: string }
+
+  declare interface UserLogin {
+    id: string
+    code: string
+    user_id: string
+    expires_at: number
   }
 }
 

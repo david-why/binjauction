@@ -1,9 +1,11 @@
 .DS_Store
 *.nosync
 *.code-workspace
-.env*
+.env
+.env.*
 .wrangler
-.dot.vars*
+.dev.vars
+.dev.vars.*
 
 # Logs
 logs

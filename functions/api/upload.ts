@@ -1,6 +1,6 @@
-import { createRandomId } from "../../utils"
+import { createRandomId } from "$/utils"
 
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+export const onRequestPost: AuctionPagesFunction = async (context) => {
   const body = context.request.body!
   const id = createRandomId()
   const object = await context.env.BUCKET.put(id, body)

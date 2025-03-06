@@ -17,6 +17,11 @@ const router = createRouter({
       path: '/works/:id/bid',
       name: 'bid',
       component: () => import('../views/BidView.vue'),
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
     }
   ],
 })

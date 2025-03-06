@@ -4,43 +4,87 @@ const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL as string
 
 const cachedMe = ref<User | null>()
 
-function getAccessToken(): string | null {
+export function getAccessToken(): string | null {
   return localStorage.getItem('accessToken')
 }
 
-export async function fetchWorks(): Promise<WorkDetail[]> {
-  const response = await fetch(`${BACKEND_BASE_URL}/works`)
-  return await response.json()
+type Json = string | number | boolean | null | Json[] | { [key: string]: Json }
+
+interface FetchInit {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+  headers?: Record<string, string>
+  body?: Json
 }
 
-export async function fetchWork(id: string): Promise<WorkDetail> {
-  const response = await fetch(`${BACKEND_BASE_URL}/works/${id}`)
-  return await response.json()
-}
-
-export async function fetchMe(): Promise<User | null> {
-  if (cachedMe.value !== undefined) {
-    return cachedMe.value
+class FetchError extends Error {
+  constructor(public response: Response) {
+    super(response.statusText)
   }
+}
+
+async function fetchJson<T>(path: string, { method = 'GET', headers = {}, body }: FetchInit = {}): Promise<T> {
   const token = getAccessToken()
-  if (!token) {
-    return null
+  if (token) {
+    headers['x-access-token'] = token
   }
-  const response = await fetch(`${BACKEND_BASE_URL}/me`, { headers: { 'x-access-token': token } })
-  return cachedMe.value = response.ok ? await response.json() : null
+  let requestBody = undefined
+  if (body !== undefined) {
+    headers['Content-Type'] = 'application/json'
+    requestBody = JSON.stringify(body)
+  }
+  const response = await fetch(`${BACKEND_BASE_URL}${path}`, { method, headers, body: requestBody })
+  if (!response.ok) {
+    throw new FetchError(response)
+  }
+  return await response.json()
 }
 
-export async function login(phone: string): Promise<boolean> {
-  cachedMe.value = undefined
-  const response = await fetch(`${BACKEND_BASE_URL}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone }),
-  })
-  if (!response.ok) {
-    return false
-  }
-  const { accessToken } = await response.json()
-  localStorage.setItem('accessToken', accessToken)
-  return true
+export async function fetchWorks() {
+  return await fetchJson<WorkDetail[]>(`/works`)
 }
+
+export async function fetchWork(id: string) {
+  return await fetchJson<WorkDetail>(`/works/${id}`)
+}
+
+export async function login(phone: string) {
+  cachedMe.value = undefined
+  localStorage.removeItem('accessToken')
+  const response = await fetchJson<{ sessionToken: string }>(`/login`, {
+    method: 'POST',
+    body: { phone },
+  });
+  return response.sessionToken
+}
+
+export async function verify(sessionToken: string, code: string) {
+  const response = await fetchJson<{ accessToken: string }>(`/login/code`, {
+    method: 'POST',
+    body: { sessionToken, code },
+  });
+  localStorage.setItem('accessToken', response.accessToken)
+  fetchMe() // don't await because it's fine
+}
+
+export async function logout() {
+  cachedMe.value = null
+  localStorage.removeItem('accessToken')
+}
+
+export async function fetchMe() {
+  if (cachedMe.value !== undefined) {
+    return
+  }
+  cachedMe.value = null
+  try {
+    cachedMe.value = await fetchJson<User>(`/me`)
+  } catch (error) {
+    if (error instanceof FetchError && error.response.status === 401) {
+      localStorage.removeItem('accessToken')
+    }
+    cachedMe.value = undefined
+    throw error
+  }
+}
+
+export { cachedMe as me }

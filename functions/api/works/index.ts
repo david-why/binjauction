@@ -1,3 +1,5 @@
+import { obfuscatePhone } from "$/utils"
+
 const GET_WORKS_SQL = `
 WITH RankedBids AS (
     SELECT
@@ -19,7 +21,8 @@ SELECT
     rb.highest_bid_timestamp,
     u.id AS user_id,
     u.name AS user_name,
-    u.role AS user_role
+    u.role AS user_role,
+    u.phone AS user_phone
 FROM works w
 LEFT JOIN RankedBids rb ON w.id = rb.work_id AND rb.rank = 1
 LEFT JOIN users u ON rb.user_id = u.id;
@@ -36,9 +39,10 @@ declare interface WorksQueryRow {
   user_id: string | null
   user_name: string | null
   user_role: number | null
+  user_phone: string | null
 }
 
-export const onRequestGet: PagesFunction<Env> = async (context) => {
+export const onRequestGet: AuctionPagesFunction = async (context) => {
   const value = await context.env.DB.prepare(GET_WORKS_SQL).run<WorksQueryRow>()
   const works: WorkDetail[] = value.results.map((row) => ({
     id: row.work_id,
@@ -52,6 +56,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         id: row.user_id!,
         name: row.user_name!,
         role: row.user_role!,
+        obfsPhone: obfuscatePhone(row.user_phone!),
       },
       timestamp: row.highest_bid_timestamp!,
     } : null,

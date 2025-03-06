@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import { logout, me } from './service'
 </script>
 
 <template>
@@ -9,7 +10,8 @@ import { RouterView } from 'vue-router'
       ><span class="navbar-title"><strong>Silent Auction</strong></span></RouterLink
     >
     <RouterLink to="/about">About</RouterLink>
-    <RouterLink to="/login">Login</RouterLink>
+    <RouterLink to="/login" v-if="!me">Login</RouterLink>
+    <a v-else @click="logout">Logout</a>
   </nav>
 
   <main class="content">
