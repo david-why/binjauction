@@ -6,19 +6,14 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
     "lib": [
       "esnext"
     ],
     "types": [
-      "@cloudflare/workers-types",
-      "node"
+      "@cloudflare/workers-types"
     ],
     "strict": true,
     "paths": {
-      "*": [
-        "../node_modules/*"
-      ],
       "$/*": [
         "./src/*"
       ]

@@ -1,12 +1,20 @@
-import { createHash, createHmac } from 'crypto'
 import { createRandomId } from './utils'
 
-function createSignature(method: string, canonicalUri: string, query: [string, string][], headers: [string, string][], payload: string, accessKeyId: string, accessKeySecret: string) {
+async function sha256Hex(data: string) {
+  const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data))
+  return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function hmacSha256Hex(key: string, data: string) {
+  const cryptoKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(key), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const buffer = await crypto.subtle.sign('HMAC', cryptoKey, new TextEncoder().encode(data))
+  return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function createSignature(method: string, canonicalUri: string, query: [string, string][], headers: [string, string][], payload: string, accessKeyId: string, accessKeySecret: string) {
   headers.push(['x-acs-date', new Date().toISOString().split('.')[0] + 'Z'])
   headers.push(['x-acs-signature-nonce', createRandomId()])
-  const payloadHasher = createHash('sha256')
-  payloadHasher.update(payload)
-  const payloadHash = payloadHasher.digest('hex')
+  const payloadHash = await sha256Hex(payload)
   headers.push(['x-acs-content-sha256', payloadHash])
   const canonicalQueryString = [...query]
     .sort((a, b) => a[0].localeCompare(b[0]))
@@ -27,16 +35,12 @@ function createSignature(method: string, canonicalUri: string, query: [string, s
     signedHeaders,
     payloadHash,
   ].join('\n')
-  const canonicalRequestHasher = createHash('sha256')
-  canonicalRequestHasher.update(canonicalRequest)
-  const canonicalRequestHash = canonicalRequestHasher.digest('hex')
+  const canonicalRequestHash = await sha256Hex(canonicalRequest)
   const stringToSign = [
     'ACS3-HMAC-SHA256',
     canonicalRequestHash,
   ].join('\n')
-  const hmac = createHmac('sha256', accessKeySecret)
-  hmac.update(stringToSign)
-  const signature = hmac.digest('hex')
+  const signature = await hmacSha256Hex(accessKeySecret, stringToSign)
   return `ACS3-HMAC-SHA256 Credential=${accessKeyId},SignedHeaders=${signedHeaders},Signature=${signature}`
 }
 
@@ -56,7 +60,7 @@ async function sendSMS(phone: string, signName: string, templateCode: string, pa
     ['TemplateCode', templateCode],
     ['TemplateParam', JSON.stringify(params)],
   ]
-  const signature = createSignature('POST', '/', query, headers, '', env.ALIBABA_CLOUD_ACCESS_KEY_ID, env.ALIBABA_CLOUD_ACCESS_KEY_SECRET)
+  const signature = await createSignature('POST', '/', query, headers, '', env.ALIBABA_CLOUD_ACCESS_KEY_ID, env.ALIBABA_CLOUD_ACCESS_KEY_SECRET)
   headers.push(['Authorization', signature])
   return fetch('https://dysmsapi.aliyuncs.com/?' + new URLSearchParams(query).toString(), {
     method: 'POST',

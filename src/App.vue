@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-import { logout, me } from './service'
+import { fetchMe, logout, me } from './service'
+
+onMounted(() => {
+  fetchMe()
+})
 </script>
 
 <template>
