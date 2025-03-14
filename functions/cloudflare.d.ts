@@ -2,6 +2,7 @@ declare global {
   interface Env {
     DB: D1Database
     BUCKET: R2Bucket
+    BUCKET_BASE_URL: string
     ENABLE_SMS: 'false' | 'true'
     ALIBABA_CLOUD_ACCESS_KEY_ID: string
     ALIBABA_CLOUD_ACCESS_KEY_SECRET: string
@@ -11,6 +12,7 @@ declare global {
   }
   interface ContextData extends Record<string, unknown> {
     user: User | null
+    accessToken: string | null
   }
   type AuctionPagesFunction<Params extends string = string> = PagesFunction<Env, Params, ContextData>
   type AuctionContext<Params extends string = string> = EventContext<Env, Params, ContextData>

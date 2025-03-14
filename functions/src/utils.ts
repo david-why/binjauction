@@ -18,3 +18,11 @@ export function checkAdmin(context: AuctionContext) {
     throw Response.json({ error: 'Forbidden' }, { status: 403 })
   }
 }
+
+export function getDefaultMinBid(context: AuctionContext) {
+  const minBid = context.data.minBid
+  if (typeof minBid !== 'number' || minBid < 100) {
+    return 100
+  }
+  return minBid
+}

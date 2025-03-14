@@ -8,7 +8,7 @@ WITH RankedBids AS (
         b.id AS highest_bid_id,
         b.amount AS highest_bid,
         b.timestamp AS highest_bid_timestamp,
-        ROW_NUMBER() OVER (PARTITION BY b.work_id ORDER BY b.amount DESC, b.timestamp DESC) AS rank
+        ROW_NUMBER() OVER (PARTITION BY b.work_id ORDER BY b.amount DESC) AS rank
     FROM bids b
 )
 SELECT
@@ -16,6 +16,7 @@ SELECT
     w.name AS work_name,
     w.description,
     w.img,
+    w.minBid,
     rb.highest_bid_id,
     rb.highest_bid,
     rb.highest_bid_timestamp,
@@ -34,6 +35,7 @@ declare interface WorksQueryRow {
   work_name: string
   description: string
   img: string
+  minBid: number
   highest_bid_id: string | null
   highest_bid: number | null
   highest_bid_timestamp: number | null
@@ -54,6 +56,7 @@ export const onRequestGet: AuctionPagesFunction = async (context) => {
     name: value.work_name,
     description: value.description,
     img: value.img,
+    minBid: value.minBid,
     highestBid: value.highest_bid_id ? {
       id: value.highest_bid_id,
       amount: value.highest_bid!,

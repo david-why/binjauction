@@ -3,16 +3,25 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-const props = defineProps<{
-  work: WorkDetail
-}>()
+const props = withDefaults(
+  defineProps<{
+    work: WorkDetail
+    showBid?: boolean
+  }>(),
+  {
+    showBid: true,
+  },
+)
 
 const displayBid = computed(() => {
-  return props.work.highestBid?.amount || 'No bid yet'
+  if (props.work.highestBid) {
+    return `¥${props.work.highestBid.amount} (${props.work.highestBid.user.obfsPhone})`
+  }
+  return 'No bid yet'
 })
 
 function bidWork() {
-  router.push(`/works/${props.work.id}/bid`)
+  router.push(`/works/${props.work.id}`)
 }
 </script>
 
@@ -24,7 +33,7 @@ function bidWork() {
     </div>
     <p>{{ work.description }}</p>
     <p>Current bid: {{ displayBid }}</p>
-    <div>
+    <div v-if="showBid">
       <button @click="bidWork">Bid!</button>
     </div>
   </div>

@@ -15,8 +15,8 @@
   --pal-dark-accent-hover: #b38a1f;
   --pal-dark-foreground: #d8d2c1;
   --pal-dark-secondary: #581c35;
-  --pal-dark-contrast: #4d6774;
-  --pal-dark-contrast-hover: #3f565c;
+  --pal-dark-contrast: #5f8291;
+  --pal-dark-contrast-hover: #4e6d73;
 }
 
 /* semantic color variables for this project */
@@ -78,7 +78,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

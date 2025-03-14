@@ -8,12 +8,12 @@ export function getAccessToken(): string | null {
   return localStorage.getItem('accessToken')
 }
 
-type Json = string | number | boolean | null | Json[] | { [key: string]: Json }
+type Json = string | number | boolean | null | Json[] | object
 
 interface FetchInit {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   headers?: Record<string, string>
-  body?: Json
+  body?: Json | FormData
 }
 
 class FetchError extends Error {
@@ -29,10 +29,18 @@ async function fetchJson<T>(path: string, { method = 'GET', headers = {}, body }
   }
   let requestBody = undefined
   if (body !== undefined) {
-    headers['Content-Type'] = 'application/json'
-    requestBody = JSON.stringify(body)
+    if (body instanceof FormData) {
+      requestBody = body
+    } else {
+      requestBody = JSON.stringify(body)
+      headers['Content-Type'] = 'application/json'
+    }
   }
   const response = await fetch(`${BACKEND_BASE_URL}${path}`, { method, headers, body: requestBody })
+  if (response.headers.get('x-token-invalid') === '1') {
+    cachedMe.value = null
+    localStorage.removeItem('accessToken')
+  }
   if (!response.ok) {
     throw new FetchError(response)
   }
@@ -45,6 +53,13 @@ export async function fetchWorks() {
 
 export async function fetchWork(id: string) {
   return await fetchJson<WorkDetail>(`/works/${id}`)
+}
+
+export async function placeBid(workId: string, amount: number) {
+  await fetchJson(`/works/${workId}/bids`, {
+    method: 'POST',
+    body: { amount },
+  })
 }
 
 export async function login(phone: string) {
@@ -69,22 +84,42 @@ export async function verify(sessionToken: string, code: string) {
 export async function logout() {
   cachedMe.value = null
   localStorage.removeItem('accessToken')
+  await fetchJson(`/logout`, { method: 'POST' })
 }
 
 export async function fetchMe() {
   if (cachedMe.value !== undefined) {
     return
   }
-  cachedMe.value = null
-  try {
-    cachedMe.value = await fetchJson<User>(`/me`)
-  } catch (error) {
-    if (error instanceof FetchError && error.response.status === 401) {
-      localStorage.removeItem('accessToken')
+  if (!cachedMe.value) {
+    try {
+      cachedMe.value = await fetchJson<User>(`/me`)
+    } catch (error) {
+      if (error instanceof FetchError && error.response.status === 401) {
+        localStorage.removeItem('accessToken')
+      }
+      cachedMe.value = undefined
+      throw error
     }
-    cachedMe.value = undefined
-    throw error
   }
+}
+
+export async function upload(file: Blob) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const resp = await fetchJson<{ key: string, url: string }>(`/upload`, {
+    method: 'POST',
+    body: formData,
+  })
+  return resp
+}
+
+export async function createWork(work: Omit<Work, 'id'>) {
+  const { id } = await fetchJson<{ id: string }>(`/works`, {
+    method: 'POST',
+    body: work,
+  })
+  return id
 }
 
 export { cachedMe as me }

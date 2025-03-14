@@ -29,14 +29,6 @@ onMounted(async () => {
   <div v-else-if="!works.length">No works yet. Please check back later!</div>
   <ul v-else class="works-list">
     <li v-for="work in displayWorks" :key="work.id" class="work-item">
-      <!-- <div>
-        <h3 class="work-title">{{ work.name }}</h3>
-        <div>
-          <a :href="work.img" target="_blank"><img :src="work.img" class="work-image" /></a>
-        </div>
-        <p>{{ work.description }}</p>
-        <p>Current bid: {{ work.dispBid }}</p>
-      </div> -->
       <WorkCard :work="work"></WorkCard>
     </li>
   </ul>

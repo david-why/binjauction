@@ -71,3 +71,7 @@ async function sendSMS(phone: string, signName: string, templateCode: string, pa
 export async function sendVerificationCode(phone: string, code: string, env: Env) {
   await sendSMS(phone, env.SMS_SIGN_NAME, env.SMS_VERIFY_TEMPLATE_CODE, { code }, env)
 }
+
+export async function sendNotification(phone: string, title: string, env: Env) {
+  await sendSMS(phone, env.SMS_SIGN_NAME, env.SMS_NOTIFY_TEMPLATE_CODE, { title }, env)
+}

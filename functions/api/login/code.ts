@@ -7,7 +7,6 @@ interface LoginCodeForm {
 
 export const onRequestPost: AuctionPagesFunction = async (context) => {
   const body = await context.request.json<LoginCodeForm>()
-  await context.env.DB.prepare('DELETE FROM user_logins WHERE expires_at < ?').bind(Date.now()).run()
   const login = await context.env.DB.prepare('SELECT * FROM user_logins WHERE id = ?').bind(body.sessionToken).first<UserLogin>()
   if (!login) {
     return Response.json({ error: 'Session not found' }, { status: 404 })

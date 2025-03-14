@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --mode dev",
+    "dev-func": "wrangler pages dev --ip 0.0.0.0 --live-reload",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build --mode prod",
-    "type-check": "vue-tsc --build",
+    "type-check": "run-p type-check-vue type-check-functions",
+    "type-check-vue": "vue-tsc --build",
+    "type-check-functions": "tsc --noEmit --project functions",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "wrangler": "wrangler"
+    "w": "wrangler"
   },
   "dependencies": {
     "vue": "^3.5.13",

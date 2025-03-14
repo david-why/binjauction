@@ -4,6 +4,7 @@ declare global {
     name: string
     description: string
     img: string
+    minBid: number
   }
 
   interface WorkDetail extends Work {

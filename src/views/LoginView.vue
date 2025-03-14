@@ -14,10 +14,12 @@ const phoneEdited = ref(false)
 watch(phone, () => (phoneEdited.value = true))
 const isCodeSent = ref(false)
 const isCodeSending = ref(false)
+const isVerifying = ref(false)
 
 const isSendDisabled = computed(
   () => !phone.value || phoneError.value || isCodeSent.value || isCodeSending.value,
 )
+const isVerifyDisabled = computed(() => !code.value || codeError.value || isVerifying.value)
 
 const phoneErrorMsg = computed(() => {
   if (!phoneEdited.value) {
@@ -60,6 +62,7 @@ async function submitCode() {
   if (!sessionToken) {
     return
   }
+  isVerifying.value = true
   await verify(sessionToken, code.value)
   router.push(loginRedirectPath.value ?? '/')
 }
@@ -78,7 +81,7 @@ onMounted(() => {
       <tbody>
         <tr :class="{ 'form-error': phoneError }">
           <td colspan="2">
-            <input type="tel" placeholder="Phone number (+86)" v-model="phone" />
+            <input type="tel" placeholder="Phone number (+86)" required v-model="phone" />
           </td>
         </tr>
         <tr class="form-error">
@@ -86,17 +89,19 @@ onMounted(() => {
         </tr>
         <tr>
           <td>
-            <input type="text" placeholder="SMS code" v-model="code" />
+            <input type="text" placeholder="SMS code" required v-model="code" />
           </td>
           <td>
-            <button :disabled="isSendDisabled" @click="sendCode">
+            <button class="send-button" :disabled="isSendDisabled" @click="sendCode">
               <LoaderIcon v-if="isCodeSending"></LoaderIcon> Send
             </button>
           </td>
         </tr>
         <tr>
           <td colspan="2">
-            <button type="submit" :disabled="phoneError || codeError">Login</button>
+            <button type="submit" class="login-button" :disabled="isVerifyDisabled">
+              <LoaderIcon v-if="isVerifying"></LoaderIcon> Login
+            </button>
           </td>
         </tr>
       </tbody>
@@ -107,13 +112,16 @@ onMounted(() => {
 <style scoped>
 .login-form {
   width: 100%;
-  max-width: 300px;
+  max-width: 500px;
   border-collapse: collapse;
 }
 .login-form input,
-.login-form button {
+.login-button {
   width: 100%;
   margin: 8px 0;
+}
+.send-button {
+  width: 100%;
 }
 .form-error {
   color: red;

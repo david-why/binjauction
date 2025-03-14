@@ -1,4 +1,4 @@
-import { obfuscatePhone } from "$/utils"
+import { createRandomId, obfuscatePhone } from "$/utils"
 
 const GET_WORKS_SQL = `
 WITH RankedBids AS (
@@ -8,7 +8,7 @@ WITH RankedBids AS (
         b.id AS highest_bid_id,
         b.amount AS highest_bid,
         b.timestamp AS highest_bid_timestamp,
-        ROW_NUMBER() OVER (PARTITION BY b.work_id ORDER BY b.amount DESC, b.timestamp DESC) AS rank
+        ROW_NUMBER() OVER (PARTITION BY b.work_id ORDER BY b.amount DESC) AS rank
     FROM bids b
 )
 SELECT
@@ -16,6 +16,7 @@ SELECT
     w.name AS work_name,
     w.description,
     w.img,
+    w.minBid,
     rb.highest_bid_id,
     rb.highest_bid,
     rb.highest_bid_timestamp,
@@ -33,6 +34,7 @@ declare interface WorksQueryRow {
   work_name: string
   description: string
   img: string
+  minBid: number
   highest_bid_id: string | null
   highest_bid: number | null
   highest_bid_timestamp: number | null
@@ -49,6 +51,7 @@ export const onRequestGet: AuctionPagesFunction = async (context) => {
     name: row.work_name,
     description: row.description,
     img: row.img,
+    minBid: row.minBid,
     highestBid: row.highest_bid_id ? {
       id: row.highest_bid_id,
       amount: row.highest_bid!,
@@ -62,4 +65,14 @@ export const onRequestGet: AuctionPagesFunction = async (context) => {
     } : null,
   }))
   return Response.json(works)
+}
+
+export const onRequestPost: AuctionPagesFunction = async (context) => {
+  const body = await context.request.json<Work>()
+  const id = createRandomId()
+  await context.env.DB.prepare(`
+    INSERT INTO works (id, name, description, img, minBid)
+    VALUES (?, ?, ?, ?, ?);
+  `).bind(id, body.name, body.description, body.img, body.minBid).run()
+  return Response.json({ id }, { status: 201 })
 }
