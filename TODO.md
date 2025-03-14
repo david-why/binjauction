@@ -8,7 +8,7 @@
 - [ ] Upload drag/drop
 - [ ] Hide works
   - [ ] Show hidden works
-- [ ] SMS notifications when outbid
+- [x] SMS notifications when outbid
 - [x] "You" when bidding user is the logged in user
 - [ ] User profile page
 
