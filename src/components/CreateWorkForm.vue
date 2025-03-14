@@ -31,14 +31,14 @@ const isUploading = ref(false)
 function onDrop(event: DragEvent) {
   event.preventDefault()
   const droppedFile = event.dataTransfer?.files?.[0]
-  if (droppedFile) {
+  if (droppedFile && droppedFile.type.startsWith('image/')) {
     file.value = droppedFile
   }
 }
 
 function fileChanged() {
   const selFile = fileInput.value?.files?.[0]
-  if (selFile) {
+  if (selFile && selFile.type.startsWith('image/')) {
     file.value = selFile
   }
 }
@@ -66,7 +66,7 @@ async function doUploadWork() {
 <template>
   <form @submit="doUploadWork">
     <input type="file" @change="fileChanged" accept="image/*" ref="fileInput" hidden />
-    <div class="drop-area" @click="fileInput?.click" @drop.prevent="onDrop">
+    <div class="drop-area" @click="fileInput?.click" @dragover.prevent @drop="onDrop">
       <p>Drop image here or click to upload</p>
     </div>
     <div v-if="file">
@@ -84,7 +84,7 @@ async function doUploadWork() {
           </tr>
           <tr>
             <td>Minimum Bid</td>
-            <td><input type="number" step="10" v-model="minBid" /></td>
+            <td><input type="number" min="10" step="10" v-model="minBid" /></td>
           </tr>
         </tbody>
       </table>
@@ -101,8 +101,8 @@ async function doUploadWork() {
 }
 .drop-area {
   display: inline-block;
-  padding: 20px 50px;
-  width: 500px;
+  padding: 50px 50px;
+  width: 100%;
   max-width: 100%;
   border: 2px dashed var(--color-contrast);
   border-radius: 0.5em;

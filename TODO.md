@@ -1,13 +1,13 @@
 # TODO
-- [ ] Click image to bid
+- [x] Click image to bid
 - [ ] Set website title
 - [ ] Actual admin panel
-  - [ ] Delete works
+  - [x] Delete works
   - [ ] List all bids
-  - [ ] Edit work title/description
-- [ ] Upload drag/drop
-- [ ] Hide works
-  - [ ] Show hidden works
+  - [x] Edit work title/description
+- [x] Upload drag/drop
+- [x] Hide works
+  - [x] Show hidden works in admin
 - [x] SMS notifications when outbid
 - [x] "You" when bidding user is the logged in user
 - [ ] User profile page

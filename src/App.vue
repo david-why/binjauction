@@ -55,13 +55,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding: 1em;
-  gap: 1em;
+  gap: 0.8em;
 }
 .navbar > * {
   min-width: 0;
 }
 .navbar-icon {
-  height: 1em;
+  height: 1.5em;
   flex: 0 0 auto;
 }
 .navbar-title {

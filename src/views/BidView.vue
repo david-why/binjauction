@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LoaderIcon from '@/components/LoaderIcon.vue'
-import WorkCard from '@/components/WorkCard.vue'
+import LoadingButton from '@/components/LoadingButton.vue'
 import { fetchMe, fetchWork, me, placeBid } from '@/service'
 import { getDisplayBid } from '@/utils'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -12,6 +12,7 @@ const workId = route.params.id as string
 
 const bidAmount = ref<number | ''>('')
 
+const isPlacingBid = ref(false)
 const loading = ref(true)
 const work = ref<WorkDetail | null>(null)
 
@@ -38,6 +39,7 @@ async function doPlaceBid() {
     return
   }
   if (confirm(`Place a bid of ¥${bidAmount.value}? You CANNOT take back your bid!`)) {
+    isPlacingBid.value = true
     try {
       await placeBid(workId, bidAmount.value)
     } catch (error) {
@@ -62,7 +64,7 @@ onMounted(async () => {
   <div v-if="loading">Loading... <LoaderIcon></LoaderIcon></div>
   <div v-else-if="me === undefined">You have to log in to bid on a work.</div>
   <div v-else-if="work">
-    <h1>Place a Bid</h1>
+    <!-- <h1>Place a Bid</h1>
     <p><strong>Current bid</strong>: {{ displayBid }}</p>
     <form @submit.prevent="doPlaceBid">
       <div class="bid-form">
@@ -71,13 +73,37 @@ onMounted(async () => {
           placeholder="Your bid (in CNY)"
           :min="bidMin"
           autocomplete="off"
+          :disabled="isPlacingBid"
           required
           v-model="bidAmount"
         />
-        <button type="submit">Place bid</button>
+        <LoadingButton type="submit" :loading="isPlacingBid">Place bid</LoadingButton>
       </div>
     </form>
-    <WorkCard :work="work" :show-bid="false"></WorkCard>
+    <WorkCard :work="work" :show-bid="false"></WorkCard> -->
+    <h1>{{ work.name }}</h1>
+    <div>
+      <img :src="work.img" />
+    </div>
+    <p>{{ work.description }}</p>
+    <div>
+      <p><strong>Current bid</strong>: {{ displayBid }}</p>
+    </div>
+    <h2>Place a Bid</h2>
+    <form @submit.prevent="doPlaceBid">
+      <div class="bid-form">
+        <input
+          type="number"
+          placeholder="Your bid (in CNY)"
+          :min="bidMin"
+          autocomplete="off"
+          :disabled="isPlacingBid"
+          required
+          v-model="bidAmount"
+        />
+        <LoadingButton type="submit" :loading="isPlacingBid">Place bid</LoadingButton>
+      </div>
+    </form>
   </div>
 </template>
 

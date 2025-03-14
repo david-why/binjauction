@@ -5,6 +5,7 @@ declare global {
     description: string
     img: string
     minBid: number
+    hidden: boolean
   }
 
   interface WorkDetail extends Work {

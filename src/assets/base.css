@@ -8,6 +8,8 @@
   --pal-secondary: #6d2e46;
   --pal-contrast: #4a6274;
   --pal-contrast-hover: #3e4f5c;
+  --pal-danger: #b33a3a;
+  --pal-danger-hover: #972e2e;
 
   --pal-dark-background: #121417;
   --pal-dark-background-mute: #181a1d;
@@ -17,6 +19,8 @@
   --pal-dark-secondary: #581c35;
   --pal-dark-contrast: #5f8291;
   --pal-dark-contrast-hover: #4e6d73;
+  --pal-dark-danger: #c14949;
+  --pal-dark-danger-hover: #a33737;
 }
 
 /* semantic color variables for this project */
@@ -28,6 +32,8 @@
   --color-secondary: var(--pal-secondary);
   --color-contrast: var(--pal-contrast);
   --color-contrast-hover: var(--pal-accent-hover);
+  --color-danger: var(--pal-danger);
+  --color-danger-hover: var(--pal-danger-hover);
 
   --color-text: var(--pal-foreground);
 
@@ -43,6 +49,8 @@
     --color-secondary: var(--pal-dark-secondary);
     --color-contrast: var(--pal-dark-contrast);
     --color-contrast-hover: var(--pal-dark-accent-hover);
+    --color-danger: var(--pal-dark-danger);
+    --color-danger-hover: var(--pal-dark-danger-hover);
 
     --color-text: var(--pal-dark-foreground);
   }

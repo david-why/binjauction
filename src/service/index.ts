@@ -1,3 +1,4 @@
+import { pick } from '@/utils'
 import { ref } from 'vue'
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL as string
@@ -114,12 +115,23 @@ export async function upload(file: Blob) {
   return resp
 }
 
-export async function createWork(work: Omit<Work, 'id'>) {
+export async function createWork(work: Omit<Work, 'id' | 'hidden'>) {
   const { id } = await fetchJson<{ id: string }>(`/works`, {
     method: 'POST',
     body: work,
   })
   return id
+}
+
+export async function updateWork(work: Work) {
+  await fetchJson(`/works/${work.id}`, {
+    method: 'PUT',
+    body: pick(work, ['name', 'description', 'minBid', 'hidden']),
+  })
+}
+
+export async function deleteWork(id: string) {
+  await fetchJson(`/works/${id}`, { method: 'DELETE' })
 }
 
 export { cachedMe as me }

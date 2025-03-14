@@ -21,6 +21,7 @@ onMounted(async () => {
   <ul v-else class="works-list">
     <li v-for="work in works" :key="work.id" class="work-item">
       <WorkCard :work="work"></WorkCard>
+      <!-- <h2>{{ work.name }}</h2> -->
     </li>
   </ul>
 </template>

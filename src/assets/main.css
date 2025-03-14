@@ -68,3 +68,16 @@ textarea {
 details {
   margin: 1em 0;
 }
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+button.danger {
+  background-color: var(--color-danger);
+}
+
+button.danger:hover {
+  background-color: var(--color-danger-hover);
+}

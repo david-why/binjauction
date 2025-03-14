@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LoaderIcon from '@/components/LoaderIcon.vue'
+import LoadingButton from '@/components/LoadingButton.vue'
 import { getAccessToken, login, verify } from '@/service'
 import { loginRedirectPath } from '@/store'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -92,16 +92,24 @@ onMounted(() => {
             <input type="text" placeholder="SMS code" required v-model="code" />
           </td>
           <td>
-            <button class="send-button" :disabled="isSendDisabled" @click="sendCode">
-              <LoaderIcon v-if="isCodeSending"></LoaderIcon> Send
-            </button>
+            <LoadingButton
+              class="send-button"
+              :loading="isCodeSending"
+              :disabled="isSendDisabled"
+              @click="sendCode"
+              >Send</LoadingButton
+            >
           </td>
         </tr>
         <tr>
           <td colspan="2">
-            <button type="submit" class="login-button" :disabled="isVerifyDisabled">
-              <LoaderIcon v-if="isVerifying"></LoaderIcon> Login
-            </button>
+            <LoadingButton
+              class="login-button"
+              type="submit"
+              :loading="isVerifying"
+              :disabled="isVerifyDisabled"
+              >Login</LoadingButton
+            >
           </td>
         </tr>
       </tbody>

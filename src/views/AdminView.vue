@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import CreateWorkForm from '@/components/CreateWorkForm.vue'
+import EditWorkForm from '@/components/EditWorkForm.vue'
 import { fetchWorks, me } from '@/service'
-import { onMounted, ref, watch } from 'vue'
+import { getDisplayBid } from '@/utils'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
@@ -9,6 +11,15 @@ const file = ref<File | null>(null)
 const imageUrl = ref<string | null>(null)
 
 const works = ref<WorkDetail[]>([])
+
+const isWorkOpen = ref<Record<string, boolean>>({})
+
+const displayWorks = computed(() =>
+  works.value.map((work) => ({
+    ...work,
+    displayBid: getDisplayBid(work.highestBid),
+  })),
+)
 
 watch(file, (file) => {
   if (file) {
@@ -35,14 +46,15 @@ onMounted(() => {
   <div>
     <h1>Admin Panel</h1>
     <h2>Works</h2>
-    <div v-for="work in works" :key="work.id">
-      <!-- <router-link :to="'/works/' + work.id">
-        <p>{{ work.name }}</p>
-      </router-link> -->
-      <details>
-        <summary>{{ work.name }}</summary>
-        <p>{{ work.description }}</p>
-        <p>{{ work.highestBid?.amount || 'No bid yet' }}</p>
+    <div v-for="work in displayWorks" :key="work.id">
+      <details @toggle="isWorkOpen[work.id] = !isWorkOpen[work.id]" :open="isWorkOpen[work.id]">
+        <summary>
+          <h3 class="work-title">{{ work.name }}</h3>
+        </summary>
+        <template v-if="isWorkOpen[work.id]">
+          <img v-if="work.img" :src="work.img" :alt="work.name" />
+          <EditWorkForm :id="work.id" @updated="refreshWorks"></EditWorkForm>
+        </template>
       </details>
     </div>
     <h2>Upload work</h2>
@@ -50,4 +62,8 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.work-title {
+  display: inline-block;
+}
+</style>

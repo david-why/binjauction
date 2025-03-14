@@ -19,20 +19,17 @@ const displayBid = computed(() => {
 })
 
 function bidWork() {
-  router.push(`/works/${props.work.id}`)
+  if (props.showBid) {
+    router.push(`/works/${props.work.id}`)
+  }
 }
 </script>
 
 <template>
-  <div class="work">
+  <div class="work" :class="{ clickable: showBid }" @click="bidWork">
     <h3 class="work-title">{{ work.name }}</h3>
-    <div>
-      <a :href="work.img" target="_blank"><img :src="work.img" class="work-image" /></a>
-    </div>
-    <p>{{ work.description }}</p>
     <div v-if="showBid">
       <p><strong>Current bid</strong>: {{ displayBid }}</p>
-      <button @click="bidWork">Bid!</button>
     </div>
   </div>
 </template>
@@ -43,6 +40,9 @@ function bidWork() {
   border: 1px solid var(--color-background-mute);
   border-radius: 0.5em;
   background-color: var(--color-background-mute);
+}
+.clickable {
+  cursor: pointer;
 }
 .work-title {
   margin-block-end: 0.5em;
