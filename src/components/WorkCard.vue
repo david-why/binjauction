@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getDisplayBid } from '@/utils'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -14,10 +15,7 @@ const props = withDefaults(
 )
 
 const displayBid = computed(() => {
-  if (props.work.highestBid) {
-    return `¥${props.work.highestBid.amount} (${props.work.highestBid.user.obfsPhone})`
-  }
-  return 'No bid yet'
+  return getDisplayBid(props.work.highestBid)
 })
 
 function bidWork() {
@@ -32,8 +30,8 @@ function bidWork() {
       <a :href="work.img" target="_blank"><img :src="work.img" class="work-image" /></a>
     </div>
     <p>{{ work.description }}</p>
-    <p>Current bid: {{ displayBid }}</p>
     <div v-if="showBid">
+      <p><strong>Current bid</strong>: {{ displayBid }}</p>
       <button @click="bidWork">Bid!</button>
     </div>
   </div>

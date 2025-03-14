@@ -2,6 +2,7 @@
 import LoaderIcon from '@/components/LoaderIcon.vue'
 import WorkCard from '@/components/WorkCard.vue'
 import { fetchMe, fetchWork, me, placeBid } from '@/service'
+import { getDisplayBid } from '@/utils'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
@@ -29,10 +30,7 @@ watch(
 )
 
 const displayBid = computed(() => {
-  if (work.value?.highestBid) {
-    return `¥${work.value.highestBid.amount} (${work.value.highestBid.user.obfsPhone})`
-  }
-  return 'No bid yet'
+  return getDisplayBid(work.value?.highestBid)
 })
 
 async function doPlaceBid() {
@@ -79,7 +77,7 @@ onUnmounted(() => {
   <div v-else-if="me === undefined">You have to log in to bid on a work.</div>
   <div v-else-if="work">
     <h1>Place a Bid</h1>
-    <p>Current bid: {{ displayBid }}</p>
+    <p><strong>Current bid</strong>: {{ displayBid }}</p>
     <form @submit.prevent="doPlaceBid">
       <div class="bid-form">
         <input

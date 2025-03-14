@@ -18,14 +18,20 @@ declare global {
     timestamp: number
   }
 
-  interface User {
+  interface UserBase {
     id: string
     name: string
     role: number
+  }
+
+  interface User extends UserBase {
     phone: string
   }
 
-  type UserObfuscated = Omit<User, 'phone'> & { obfsPhone: string }
+  interface UserObfuscated extends UserBase {
+    obfsPhone: string
+    isSelf: boolean
+  }
 
   interface UserLogin {
     id: string

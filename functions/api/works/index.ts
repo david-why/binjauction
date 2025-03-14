@@ -60,6 +60,7 @@ export const onRequestGet: AuctionPagesFunction = async (context) => {
         name: row.user_name!,
         role: row.user_role!,
         obfsPhone: obfuscatePhone(row.user_phone!),
+        isSelf: context.data.user?.id === row.user_id!,
       },
       timestamp: row.highest_bid_timestamp!,
     } : null,
