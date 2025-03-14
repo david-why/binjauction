@@ -3,7 +3,7 @@ import LoaderIcon from '@/components/LoaderIcon.vue'
 import WorkCard from '@/components/WorkCard.vue'
 import { fetchMe, fetchWork, me, placeBid } from '@/service'
 import { getDisplayBid } from '@/utils'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
@@ -11,7 +11,6 @@ const router = useRouter()
 const workId = route.params.id as string
 
 const bidAmount = ref<number | ''>('')
-let timerId: number | null = null
 
 const loading = ref(true)
 const work = ref<WorkDetail | null>(null)
@@ -43,16 +42,10 @@ async function doPlaceBid() {
       await placeBid(workId, bidAmount.value)
     } catch (error) {
       console.error(error)
-      alert('Failed to place bid')
+      alert('Failed to place bid! Someone was probably faster than you...')
     }
     location.reload()
   }
-}
-
-async function updateWork() {
-  timerId = null
-  work.value = await fetchWork(workId)
-  timerId = setTimeout(updateWork, 10000)
 }
 
 onMounted(async () => {
@@ -62,13 +55,6 @@ onMounted(async () => {
     router.push('/')
   }
   loading.value = false
-  timerId = setTimeout(updateWork, 10000)
-})
-
-onUnmounted(() => {
-  if (timerId) {
-    clearTimeout(timerId)
-  }
 })
 </script>
 
