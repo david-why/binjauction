@@ -1,26 +1,30 @@
 <script setup lang="ts">
-import { deleteWork, fetchWork, updateWork } from '@/service'
-import { onMounted, ref } from 'vue'
-import LoaderIcon from './LoaderIcon.vue'
+import { deleteWork, updateWork } from '@/service'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import LoadingButton from './LoadingButton.vue'
 
-const { id } = defineProps<{ id: string }>()
+const emit = defineEmits<{ refresh: [] }>()
 
-const emit = defineEmits<{
-  updated: [Work]
-}>()
+const work = defineModel<WorkDetail>({ required: true })
 
-const work = ref<WorkDetail | null>(null)
-
-const isLoading = ref(true)
+const isEdited = ref(false)
 const isSaving = ref(false)
+
+watch(work, () => (isEdited.value = true), { deep: true })
+watch(isEdited, (value) => {
+  if (value) {
+    window.addEventListener('beforeunload', handleBeforeUnload)
+  } else {
+    window.removeEventListener('beforeunload', handleBeforeUnload)
+  }
+})
 
 async function doUpdateWork() {
   if (!work.value) return
   isSaving.value = true
   try {
     await updateWork(work.value)
-    emit('updated', work.value)
+    isEdited.value = false
   } finally {
     isSaving.value = false
   }
@@ -32,7 +36,8 @@ async function doDelete() {
   isSaving.value = true
   try {
     await deleteWork(work.value.id)
-    emit('updated', work.value)
+    isEdited.value = false
+    emit('refresh')
   } finally {
     isSaving.value = false
   }
@@ -44,45 +49,49 @@ async function doToggleHidden() {
   await doUpdateWork()
 }
 
-onMounted(async () => {
-  isLoading.value = true
-  work.value = await fetchWork(id)
-  isLoading.value = false
+function handleBeforeUnload(event: BeforeUnloadEvent) {
+  event.preventDefault()
+  event.returnValue = true
+}
+
+onMounted(() => {
+  isEdited.value = false
+})
+
+onUnmounted(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 </script>
 
 <template>
-  <div v-if="isLoading"><LoaderIcon></LoaderIcon> Loading...</div>
-  <div v-else-if="work">
-    <form @submit.prevent="doUpdateWork">
-      <table class="update-form">
-        <tbody>
-          <tr>
-            <td>Title</td>
-            <td><input type="text" v-model="work.name" /></td>
-          </tr>
-          <tr>
-            <td>Description</td>
-            <td><textarea rows="5" v-model="work.description" /></td>
-          </tr>
-          <tr>
-            <td>Minimum Bid</td>
-            <td><input type="number" min="10" step="10" v-model="work.minBid" /></td>
-          </tr>
-        </tbody>
-      </table>
-      <div style="margin-top: 1em; display: flex; gap: 0.5em">
-        <LoadingButton :loading="isSaving" type="submit">Update</LoadingButton>
-        <LoadingButton class="danger" :loading="isSaving" @click="doDelete">Delete</LoadingButton>
-        <LoadingButton
-          :class="{ danger: !work.hidden }"
-          :loading="isSaving"
-          @click="doToggleHidden"
-          >{{ work.hidden ? 'Unhide' : 'Hide' }}</LoadingButton
-        >
-      </div>
-    </form>
-  </div>
+  <form @submit.prevent="doUpdateWork">
+    <table class="update-form">
+      <tbody>
+        <tr>
+          <td>Title</td>
+          <td><input type="text" v-model="work.name" /></td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td><textarea rows="5" v-model="work.description" /></td>
+        </tr>
+        <tr>
+          <td>Minimum Bid</td>
+          <td><input type="number" min="10" step="10" v-model="work.minBid" /></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top: 1em; display: flex; gap: 0.5em">
+      <LoadingButton :loading="isSaving" type="submit">Update</LoadingButton>
+      <LoadingButton class="danger" :loading="isSaving" @click="doDelete">Delete</LoadingButton>
+      <LoadingButton
+        :class="{ danger: !work.hidden }"
+        :loading="isSaving"
+        @click="doToggleHidden"
+        >{{ work.hidden ? 'Unhide' : 'Hide' }}</LoadingButton
+      >
+    </div>
+  </form>
 </template>
 
 <style scoped>

@@ -12,11 +12,18 @@ declare global {
     highestBid: Bid | null
   }
 
-  interface Bid {
+  interface BidBase {
     id: string
     amount: number
-    user: UserObfuscated
     timestamp: number
+  }
+
+  interface Bid extends BidBase {
+    user: UserObfuscated
+  }
+
+  interface BidAdmin extends BidBase {
+    user: User
   }
 
   interface UserBase {

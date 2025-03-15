@@ -90,18 +90,17 @@ export async function logout() {
 
 export async function fetchMe() {
   if (cachedMe.value !== undefined) {
-    return
+    return cachedMe.value
   }
-  if (!cachedMe.value) {
-    try {
-      cachedMe.value = await fetchJson<User>(`/me`)
-    } catch (error) {
-      if (error instanceof FetchError && error.response.status === 401) {
-        localStorage.removeItem('accessToken')
-      }
-      cachedMe.value = undefined
-      throw error
+  try {
+    cachedMe.value = await fetchJson<User>(`/me`)
+    return cachedMe.value
+  } catch (error) {
+    if (error instanceof FetchError && error.response.status === 401) {
+      localStorage.removeItem('accessToken')
     }
+    cachedMe.value = undefined
+    throw error
   }
 }
 
@@ -132,6 +131,10 @@ export async function updateWork(work: Work) {
 
 export async function deleteWork(id: string) {
   await fetchJson(`/works/${id}`, { method: 'DELETE' })
+}
+
+export async function fetchBids(workId: string) {
+  return await fetchJson<BidAdmin[]>(`/works/${workId}/bids`)
 }
 
 export { cachedMe as me }

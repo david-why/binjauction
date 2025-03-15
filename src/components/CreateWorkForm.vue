@@ -57,6 +57,9 @@ async function doUploadWork() {
       img: url,
     })
     emit('uploaded', id)
+  } catch (e) {
+    console.error(e)
+    alert('Failed to upload work. Please try again.')
   } finally {
     isUploading.value = false
   }

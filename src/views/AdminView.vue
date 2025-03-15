@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CreateWorkForm from '@/components/CreateWorkForm.vue'
 import EditWorkForm from '@/components/EditWorkForm.vue'
-import { fetchWorks, me } from '@/service'
+import { fetchMe, fetchWorks } from '@/service'
 import { getDisplayBid } from '@/utils'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -34,8 +34,8 @@ async function refreshWorks() {
   works.value = await fetchWorks()
 }
 
-onMounted(() => {
-  if (me.value?.role !== 1) {
+onMounted(async () => {
+  if ((await fetchMe())?.role !== 1) {
     router.push('/login')
   }
   refreshWorks()
@@ -46,14 +46,14 @@ onMounted(() => {
   <div>
     <h1>Admin Panel</h1>
     <h2>Works</h2>
-    <div v-for="work in displayWorks" :key="work.id">
+    <div v-for="(work, index) in displayWorks" :key="work.id">
       <details @toggle="isWorkOpen[work.id] = !isWorkOpen[work.id]" :open="isWorkOpen[work.id]">
         <summary>
           <h3 class="work-title">{{ work.name }}</h3>
         </summary>
         <template v-if="isWorkOpen[work.id]">
           <img v-if="work.img" :src="work.img" :alt="work.name" />
-          <EditWorkForm :id="work.id" @updated="refreshWorks"></EditWorkForm>
+          <EditWorkForm v-model="works[index]" @refresh="refreshWorks"></EditWorkForm>
         </template>
       </details>
     </div>

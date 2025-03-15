@@ -21,15 +21,52 @@ AND b.amount = (
 );
 `
 
+const GET_BIDS_SQL = `
+SELECT
+    b.id,
+    b.amount,
+    b.timestamp,
+    b.user_id,
+    u.name AS user_name,
+    u.role AS user_role,
+    u.phone AS user_phone
+FROM bids b
+JOIN users u ON b.user_id = u.id
+WHERE b.work_id = ?
+ORDER BY b.amount DESC, b.timestamp ASC;
+`
+
 interface OutbidResult {
   work_name: string
   phone: string
 }
 
+interface GetBidsResult {
+  id: string
+  amount: number
+  timestamp: number
+  user_id: string
+  user_name: string
+  user_role: number
+  user_phone: string
+}
+
 export const onRequestGet: AuctionPagesFunction = async (context) => {
   checkAdmin(context)
-  // TODO
-  return Response.json({ error: 'Not implemented' }, { status: 501 })
+  const workId = context.params.id as string
+  const bidsResult = await context.env.DB.prepare(GET_BIDS_SQL).bind(workId).all<GetBidsResult>()
+  const bids: BidAdmin[] = bidsResult.results.map((bid) => ({
+    id: bid.id,
+    amount: bid.amount,
+    timestamp: bid.timestamp,
+    user: {
+      id: bid.user_id,
+      name: bid.user_name,
+      role: bid.user_role,
+      phone: bid.user_phone
+    }
+  }))
+  return Response.json(bids)
 }
 
 interface BidForm {

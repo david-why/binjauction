@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LoadingButton from '@/components/LoadingButton.vue'
-import { getAccessToken, login, verify } from '@/service'
+import { fetchMe, login, verify } from '@/service'
 import { loginRedirectPath } from '@/store'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -67,8 +67,8 @@ async function submitCode() {
   router.push(loginRedirectPath.value ?? '/')
 }
 
-onMounted(() => {
-  if (getAccessToken()) {
+onMounted(async () => {
+  if (await fetchMe()) {
     router.push(loginRedirectPath.value ?? '/')
   }
 })
