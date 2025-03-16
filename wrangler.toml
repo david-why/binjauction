@@ -5,7 +5,7 @@ compatibility_date = "2025-02-14"
 
 [vars]
 NODE_VERSION = "20.18.2"
-BUCKET_BASE_URL = "https://binjauction-images.david-why.tech"
+BUCKET_BASE_URL = "https://binjauction-images.davidwhy.me"
 VITE_BACKEND_BASE_URL = "/api"
 
 [[d1_databases]]
