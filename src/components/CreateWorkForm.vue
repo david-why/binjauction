@@ -27,9 +27,21 @@ const description = ref('')
 const minBid = ref(100)
 
 const isUploading = ref(false)
+const isDragOver = ref(false)
+
+function onDragOver(event: DragEvent) {
+  const dt = event.dataTransfer
+  if (dt) {
+    dt.dropEffect = 'copy'
+    isDragOver.value = true
+  }
+}
+
+function onDragLeave() {
+  isDragOver.value = false
+}
 
 function onDrop(event: DragEvent) {
-  event.preventDefault()
   const droppedFile = event.dataTransfer?.files?.[0]
   if (droppedFile && droppedFile.type.startsWith('image/')) {
     file.value = droppedFile
@@ -69,28 +81,35 @@ async function doUploadWork() {
 <template>
   <form @submit="doUploadWork">
     <input type="file" @change="fileChanged" accept="image/*" ref="fileInput" hidden />
-    <div class="drop-area" @click="fileInput?.click" @dragover.prevent @drop="onDrop">
+    <div
+      class="drop-area"
+      :class="{ 'dragged-over': isDragOver }"
+      @click="fileInput?.click"
+      @dragenter.prevent="onDragOver"
+      @dragover.prevent="onDragOver"
+      @dragleave.prevent="onDragLeave"
+      @mouseleave.passive="onDragLeave"
+      @drop.prevent="onDrop"
+    >
       <p>Drop image here or click to upload</p>
     </div>
     <div v-if="file">
       <h3>{{ file.name }}</h3>
       <img v-if="imageUrl" :src="imageUrl" class="image-preview" />
-      <table class="upload-form">
-        <tbody>
-          <tr>
-            <td>Title</td>
-            <td><input type="text" v-model="name" /></td>
-          </tr>
-          <tr>
-            <td>Description</td>
-            <td><textarea rows="5" v-model="description" /></td>
-          </tr>
-          <tr>
-            <td>Minimum Bid</td>
-            <td><input type="number" min="10" step="10" v-model="minBid" /></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="upload-form">
+        <div>
+          <label for="name">Title</label>
+          <input id="name" type="text" v-model="name" />
+        </div>
+        <div>
+          <label for="description">Description</label>
+          <textarea id="description" rows="5" v-model="description"></textarea>
+        </div>
+        <div>
+          <label for="minBid">Minimum Bid</label>
+          <input id="minBid" type="number" min="10" step="10" v-model="minBid" />
+        </div>
+      </div>
       <div style="margin-top: 1em">
         <button type="submit" :disabled="isUploading">Create work</button>
       </div>
@@ -101,6 +120,19 @@ async function doUploadWork() {
 <style scoped>
 .upload-form {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.upload-form > div {
+  display: flex;
+  align-items: center;
+}
+.upload-form > div > :nth-child(1) {
+  flex: 0 0 110px;
+}
+.upload-form > div > :nth-child(2) {
+  flex: 1 0 0;
 }
 .drop-area {
   display: inline-block;
@@ -117,10 +149,9 @@ async function doUploadWork() {
   cursor: pointer;
   margin: 1em 0;
 }
-.drop-area:hover {
+.drop-area:hover,
+.drop-area.dragged-over {
   border-color: var(--color-accent);
-  /* color: var(--color-accent-hover); */
-  /* color: var(--color-contrast); */
 }
 .image-preview {
   max-width: 100%;

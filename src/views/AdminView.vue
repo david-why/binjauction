@@ -52,7 +52,7 @@ onMounted(async () => {
           <h3 class="work-title">{{ work.name }}</h3>
         </summary>
         <template v-if="isWorkOpen[work.id]">
-          <img v-if="work.img" :src="work.img" :alt="work.name" />
+          <img v-if="work.img" class="work-image" :src="work.img" :alt="work.name" />
           <EditWorkForm v-model="works[index]" @refresh="refreshWorks"></EditWorkForm>
         </template>
       </details>
@@ -65,5 +65,9 @@ onMounted(async () => {
 <style scoped>
 .work-title {
   display: inline-block;
+}
+.work-image {
+  max-width: 100%;
+  max-height: 300px;
 }
 </style>

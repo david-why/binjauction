@@ -64,26 +64,9 @@ onMounted(async () => {
   <div v-if="loading">Loading... <LoaderIcon></LoaderIcon></div>
   <div v-else-if="me === undefined">You have to log in to bid on a work.</div>
   <div v-else-if="work">
-    <!-- <h1>Place a Bid</h1>
-    <p><strong>Current bid</strong>: {{ displayBid }}</p>
-    <form @submit.prevent="doPlaceBid">
-      <div class="bid-form">
-        <input
-          type="number"
-          placeholder="Your bid (in CNY)"
-          :min="bidMin"
-          autocomplete="off"
-          :disabled="isPlacingBid"
-          required
-          v-model="bidAmount"
-        />
-        <LoadingButton type="submit" :loading="isPlacingBid">Place bid</LoadingButton>
-      </div>
-    </form>
-    <WorkCard :work="work" :show-bid="false"></WorkCard> -->
     <h1>{{ work.name }}</h1>
     <div>
-      <img :src="work.img" />
+      <img class="work-image" :src="work.img" />
     </div>
     <p>{{ work.description }}</p>
     <div>
@@ -112,5 +95,8 @@ onMounted(async () => {
   display: flex;
   gap: 8px;
   margin-block-end: 1em;
+}
+.work-image {
+  max-width: 100%;
 }
 </style>

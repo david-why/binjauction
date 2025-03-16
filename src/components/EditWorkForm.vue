@@ -65,22 +65,20 @@ onUnmounted(() => {
 
 <template>
   <form @submit.prevent="doUpdateWork">
-    <table class="update-form">
-      <tbody>
-        <tr>
-          <td>Title</td>
-          <td><input type="text" v-model="work.name" /></td>
-        </tr>
-        <tr>
-          <td>Description</td>
-          <td><textarea rows="5" v-model="work.description" /></td>
-        </tr>
-        <tr>
-          <td>Minimum Bid</td>
-          <td><input type="number" min="10" step="10" v-model="work.minBid" /></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="update-form">
+      <div>
+        <label for="name">Title</label>
+        <input id="name" type="text" v-model="work.name" />
+      </div>
+      <div>
+        <label for="description">Description</label>
+        <textarea id="description" rows="5" v-model="work.description"></textarea>
+      </div>
+      <div>
+        <label for="minBid">Minimum Bid</label>
+        <input id="minBid" type="number" min="10" step="10" v-model="work.minBid" />
+      </div>
+    </div>
     <div style="margin-top: 1em; display: flex; gap: 0.5em">
       <LoadingButton :loading="isSaving" type="submit">Update</LoadingButton>
       <LoadingButton class="danger" :loading="isSaving" @click="doDelete">Delete</LoadingButton>
@@ -96,6 +94,18 @@ onUnmounted(() => {
 
 <style scoped>
 .update-form {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.update-form > div {
+  display: flex;
+  align-items: center;
+}
+.update-form > div > :nth-child(1) {
+  flex: 0 0 110px;
+}
+.update-form > div > :nth-child(2) {
+  flex: 1 0 0;
 }
 </style>
