@@ -1,9 +1,19 @@
 <script setup lang="ts">
 import { fetchWorks } from '@/service'
+import { getFullLink } from '@/utils'
 import { QrcodeCanvas } from 'qrcode.vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const works = ref<WorkDetail[]>([])
+
+const displayWorks = computed(() =>
+  works.value.map((work) => ({
+    ...work,
+    href: getFullLink(router.resolve(`/works/${work.id}`).href),
+  })),
+)
 
 function doPrint() {
   window.print()
@@ -21,8 +31,8 @@ onMounted(async () => {
     <button @click="doPrint">Print</button>
   </div>
   <div class="qr-grid">
-    <div class="qr-work" v-for="work in [...works]" :key="work.id">
-      <QrcodeCanvas class="qr-canvas" :value="work.id" />
+    <div class="qr-work" v-for="work in displayWorks" :key="work.id">
+      <QrcodeCanvas class="qr-canvas" :value="work.href" />
       <div>{{ work.name }}</div>
     </div>
   </div>

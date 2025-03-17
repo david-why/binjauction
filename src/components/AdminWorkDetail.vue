@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getFullLink } from '@/utils'
 import { QrcodeCanvas } from 'qrcode.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -13,7 +14,7 @@ const emit = defineEmits<{ refresh: [] }>()
 
 const root = ref<HTMLDivElement>()
 
-const href = router.resolve(`/work/${work.value.id}`).href
+const href = getFullLink(router.resolve(`/works/${work.value.id}`).href)
 
 function refreshWorks() {
   emit('refresh')

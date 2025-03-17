@@ -16,4 +16,8 @@ export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
   return result as Pick<T, K>
 }
 
+export function getFullLink(href: string): string | undefined {
+  return URL.parse(href, location.href)?.href
+}
+
 export const title = ref('')
