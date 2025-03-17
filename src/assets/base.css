@@ -69,6 +69,7 @@ body {
 }
 
 body {
+  word-wrap: break-word;
   color: var(--color-text);
   background: var(--color-background);
   line-height: 1.6;

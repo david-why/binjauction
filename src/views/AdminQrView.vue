@@ -19,6 +19,14 @@ function doPrint() {
   window.print()
 }
 
+function downloadQr(work: WorkDetail, event: Event) {
+  const canvas = event.target as HTMLCanvasElement
+  const link = document.createElement('a')
+  link.download = `${work.name}.png`
+  link.href = canvas.toDataURL('image/png')
+  link.click()
+}
+
 onMounted(async () => {
   works.value = await fetchWorks()
 })
@@ -27,12 +35,17 @@ onMounted(async () => {
 <template>
   <div class="qr-description">
     <h1>Export QR Codes</h1>
-    <p>You can print this page for the QR codes for all works.</p>
+    <p>
+      You can print this page for the QR codes for all works, or click on individual QR codes to
+      download them.
+    </p>
     <button @click="doPrint">Print</button>
   </div>
   <div class="qr-grid">
     <div class="qr-work" v-for="work in displayWorks" :key="work.id">
-      <QrcodeCanvas class="qr-canvas" :value="work.href" />
+      <span @click="downloadQr(work, $event)" style="cursor: pointer">
+        <QrcodeCanvas class="qr-canvas" :value="work.href" />
+      </span>
       <div>{{ work.name }}</div>
     </div>
   </div>
