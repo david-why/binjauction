@@ -7,6 +7,7 @@ compatibility_date = "2025-02-14"
 NODE_VERSION = "20.18.2"
 BUCKET_BASE_URL = "https://binjauction-images.davidwhy.me"
 VITE_BACKEND_BASE_URL = "/api"
+VITE_FOOTER = "© 2025 david-why"
 
 [[d1_databases]]
 binding = "DB"

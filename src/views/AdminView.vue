@@ -2,7 +2,7 @@
 import AdminWorkDetail from '@/components/AdminWorkDetail.vue'
 import CreateWorkForm from '@/components/CreateWorkForm.vue'
 import LoaderIcon from '@/components/LoaderIcon.vue'
-import { fetchMe, fetchWorks, me } from '@/service'
+import { fetchMe, fetchWorks } from '@/service'
 import { title } from '@/utils'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -45,7 +45,10 @@ onMounted(async () => {
   title.value = 'Admin'
   colorChange.addEventListener('change', onColorSchemeChange, { passive: true })
   isLoading.value = true
-  await fetchMe()
+  if ((await fetchMe())?.role !== 1) {
+    router.push('/')
+    return
+  }
   await refreshWorks()
   isLoading.value = false
 })
@@ -53,16 +56,6 @@ onMounted(async () => {
 onUnmounted(() => {
   colorChange.removeEventListener('change', onColorSchemeChange)
 })
-
-watch(
-  me,
-  (me) => {
-    if (me?.role !== 1) {
-      router.push('/')
-    }
-  },
-  { immediate: true },
-)
 </script>
 
 <template>
@@ -72,7 +65,7 @@ watch(
     <div style="margin-block-start: 1em">
       <button @click="exportQrcodes">Export QR Codes</button>
     </div>
-    <h3 style="margin-block-start: 1em" v-if="isLoading"><LoaderIcon></LoaderIcon></h3>
+    <div style="margin-block-start: 1em" v-if="isLoading"><LoaderIcon></LoaderIcon></div>
     <div v-for="(work, index) in works" :key="work.id">
       <details @toggle="isWorkOpen[work.id] = !isWorkOpen[work.id]" :open="isWorkOpen[work.id]">
         <summary>

@@ -103,3 +103,7 @@ button.danger:hover {
   content: ' *';
   color: var(--color-danger);
 }
+
+.raw-text {
+  white-space: pre-line;
+}

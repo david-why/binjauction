@@ -47,6 +47,10 @@ declare global {
     user_id: string
     expires_at: number
   }
+
+  interface Config {
+    isOpen: boolean
+  }
 }
 
 export { }

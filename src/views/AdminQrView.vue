@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { fetchWorks } from '@/service'
-import { getFullLink } from '@/utils'
+import { getFullLink, title } from '@/utils'
 import { QrcodeCanvas } from 'qrcode.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -28,6 +28,7 @@ function downloadQr(work: WorkDetail, event: Event) {
 }
 
 onMounted(async () => {
+  title.value = 'Export QR Codes'
   works.value = await fetchWorks()
 })
 </script>

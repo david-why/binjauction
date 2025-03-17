@@ -50,8 +50,12 @@ async function doPlaceBid() {
     alert(`Bid amount must be at least ¥${bidMin.value}`)
     return
   }
-  if (name.value === '') {
-    alert('Please enter your name')
+  if (
+    !name.value ||
+    name.value.length > 100 ||
+    ['<', '>', '&', '"', "'"].some((c) => name.value.includes(c))
+  ) {
+    alert('Your name is invalid. Please check that you did not use any special characters.')
     return
   }
   if (confirm(`Place a bid of ¥${bidAmount.value}? You CANNOT take back your bid!`)) {
@@ -62,6 +66,9 @@ async function doPlaceBid() {
       }
     } catch (error) {
       console.error(error)
+      alert('Your name is invalid. Please check that you did not use any special characters.')
+      isPlacingBid.value = false
+      return
     }
     try {
       await placeBid(workId, bidAmount.value)
@@ -92,7 +99,7 @@ onMounted(async () => {
     <div>
       <img class="work-image" :src="work.img" />
     </div>
-    <p>{{ work.description }}</p>
+    <p class="raw-text" v-html="work.description"></p>
     <div>
       <p><strong>Current bid</strong>: {{ displayBid }}</p>
     </div>
