@@ -65,7 +65,7 @@ onUnmounted(() => {
 
 <template>
   <form @submit.prevent="doUpdateWork">
-    <div class="update-form">
+    <div class="input-form">
       <div>
         <label for="name">Title</label>
         <input id="name" type="text" v-model="work.name" />
@@ -92,20 +92,4 @@ onUnmounted(() => {
   </form>
 </template>
 
-<style scoped>
-.update-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-}
-.update-form > div {
-  display: flex;
-  align-items: center;
-}
-.update-form > div > :nth-child(1) {
-  flex: 0 0 110px;
-}
-.update-form > div > :nth-child(2) {
-  flex: 1 0 0;
-}
-</style>
+<style scoped></style>

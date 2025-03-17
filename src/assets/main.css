@@ -77,3 +77,29 @@ button.danger {
 button.danger:hover {
   background-color: var(--color-danger-hover);
 }
+
+.input-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  --form-label-width: 120px;
+}
+
+.input-form > * {
+  display: flex;
+  align-items: center;
+}
+
+.input-form > :not(.row) > :nth-child(1) {
+  flex: 0 0 var(--form-label-width);
+}
+
+.input-form > :not(.row) > :nth-child(2) {
+  flex: 1 0 0;
+}
+
+.required-label::after {
+  content: ' *';
+  color: var(--color-danger);
+}

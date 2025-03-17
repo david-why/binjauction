@@ -1,25 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
+import { onMounted, watch } from 'vue'
+import { RouterView } from 'vue-router'
 import { fetchMe, logout, me } from './service'
-const route = useRoute()
+import { title } from './utils'
 
-const title = computed(() => {
-  switch (route.name) {
-    case 'about':
-      return 'Silent Auction: About'
-    case 'login':
-      return 'Silent Auction: Login'
-    case 'bid':
-      return 'Silent Auction: Place Bid'
-    case 'admin':
-      return 'Silent Auction: Admin'
-    default:
-      return 'Silent Auction'
-  }
-})
 watch(title, (value) => {
-  document.title = value
+  document.title = value ? `Silent Auction - ${value}` : 'Silent Auction'
 })
 
 async function doLogout() {

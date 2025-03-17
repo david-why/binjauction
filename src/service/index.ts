@@ -85,12 +85,16 @@ export async function verify(sessionToken: string, code: string) {
 export async function logout() {
   cachedMe.value = null
   localStorage.removeItem('accessToken')
-  await fetchJson(`/logout`, { method: 'POST' })
+  fetchJson(`/logout`, { method: 'POST' }) // we don't need to wait for this
 }
 
 export async function fetchMe() {
   if (cachedMe.value !== undefined) {
     return cachedMe.value
+  }
+  if (!getAccessToken()) {
+    cachedMe.value = null
+    return null
   }
   try {
     cachedMe.value = await fetchJson<User>(`/me`)
@@ -135,6 +139,13 @@ export async function deleteWork(id: string) {
 
 export async function fetchBids(workId: string) {
   return await fetchJson<BidAdmin[]>(`/works/${workId}/bids`)
+}
+
+export async function updateUserName(name: string) {
+  await fetchJson(`/me`, {
+    method: 'PATCH',
+    body: { name },
+  })
 }
 
 export { cachedMe as me }

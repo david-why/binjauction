@@ -96,7 +96,7 @@ async function doUploadWork() {
     <div v-if="file">
       <h3>{{ file.name }}</h3>
       <img v-if="imageUrl" :src="imageUrl" class="image-preview" />
-      <div class="upload-form">
+      <div class="input-form">
         <div>
           <label for="name">Title</label>
           <input id="name" type="text" v-model="name" />
@@ -118,25 +118,9 @@ async function doUploadWork() {
 </template>
 
 <style scoped>
-.upload-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-}
-.upload-form > div {
-  display: flex;
-  align-items: center;
-}
-.upload-form > div > :nth-child(1) {
-  flex: 0 0 110px;
-}
-.upload-form > div > :nth-child(2) {
-  flex: 1 0 0;
-}
 .drop-area {
   display: inline-block;
-  padding: 50px 50px;
+  padding: 25px 8px;
   width: 100%;
   max-width: 100%;
   border: 2px dashed var(--color-contrast);

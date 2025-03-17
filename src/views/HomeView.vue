@@ -2,12 +2,15 @@
 import LoaderIcon from '@/components/LoaderIcon.vue'
 import WorkCard from '@/components/WorkCard.vue'
 import { fetchWorks } from '@/service'
+import { title } from '@/utils'
 import { onMounted, ref } from 'vue'
 
 const loading = ref(true)
 const works = ref<WorkDetail[]>([])
 
 onMounted(async () => {
+  title.value = ''
+  loading.value = true
   works.value = await fetchWorks()
   loading.value = false
 })

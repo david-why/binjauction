@@ -23,7 +23,7 @@ const errorHandler: AuctionPagesFunction = async (context) => {
 
 function addCorsHeaders(response: Response, origin: string) {
   response.headers.set('Access-Control-Allow-Origin', origin)
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-access-token')
   response.headers.set('Access-Control-Expose-Headers', 'x-token-invalid')
   const vary = response.headers.get('Vary')

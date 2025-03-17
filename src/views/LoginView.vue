@@ -2,6 +2,7 @@
 import LoadingButton from '@/components/LoadingButton.vue'
 import { fetchMe, login, verify } from '@/service'
 import { loginRedirectPath } from '@/store'
+import { title } from '@/utils'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -68,6 +69,7 @@ async function submitCode() {
 }
 
 onMounted(async () => {
+  title.value = 'Login'
   if (await fetchMe()) {
     router.push(loginRedirectPath.value ?? '/')
   }
