@@ -82,7 +82,8 @@ onMounted(async () => {
 
 <style>
 @media print {
-  .navbar {
+  .navbar,
+  .footer {
     display: none !important;
   }
   main {

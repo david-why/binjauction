@@ -79,7 +79,7 @@ async function doUploadWork() {
 </script>
 
 <template>
-  <form @submit="doUploadWork">
+  <form @submit.prevent="doUploadWork">
     <input type="file" @change="fileChanged" accept="image/*" ref="fileInput" hidden />
     <div
       class="drop-area"
