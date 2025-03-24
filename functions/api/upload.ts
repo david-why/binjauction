@@ -16,8 +16,7 @@ export const onRequestPost: AuctionPagesFunction = async (context) => {
   const key = `${id}.${ext}`
   const object = await context.env.BUCKET.put(key, file)
   if (object) {
-    const url = `${context.env.BUCKET_BASE_URL}/${key}`
-    return Response.json({ key: object.key, url }, { status: 201 })
+    return Response.json({ key: object.key }, { status: 201 })
   }
   return Response.json({ error: 'Failed to upload', key: null }, { status: 500 })
 }

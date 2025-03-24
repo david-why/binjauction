@@ -3,7 +3,7 @@ import { createWork, upload } from '@/service'
 import { ref, watch } from 'vue'
 
 const emit = defineEmits<{
-  uploaded: [string]
+  uploaded: []
 }>()
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -61,14 +61,14 @@ async function doUploadWork() {
   }
   isUploading.value = true
   try {
-    const { url } = await upload(file.value)
-    const id = await createWork({
+    const { key } = await upload(file.value)
+    await createWork({
       name: name.value,
       description: description.value,
       minBid: minBid.value,
-      img: url,
+      img: key,
     })
-    emit('uploaded', id)
+    emit('uploaded')
   } catch (e) {
     console.error(e)
     alert('Failed to upload work. Please try again.')

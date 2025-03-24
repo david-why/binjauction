@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { watch } from 'vue'
 import { RouterView } from 'vue-router'
-import { fetchMe, logout, me } from './service'
 import { title } from './utils'
 
 const FOOTER_DOMAINS = (import.meta.env.VITE_FOOTER_DOMAINS as string) || '{}'
@@ -9,22 +8,12 @@ const FOOTER =
   JSON.parse(FOOTER_DOMAINS)[window.location.hostname] ||
   (import.meta.env.VITE_FOOTER as string) ||
   ''
-const ICP_DOMAINS = import.meta.env.VITE_FOOTER_ICP_DOMAINS as string
+const ICP_DOMAINS = (import.meta.env.VITE_FOOTER_ICP_DOMAINS as string) || '{}'
 const ICP = JSON.parse(ICP_DOMAINS)[window.location.hostname] || ''
-const ICP_URL = import.meta.env.VITE_FOOTER_ICP_URL as string
+const ICP_URL = (import.meta.env.VITE_FOOTER_ICP_URL as string) || ''
 
 watch(title, (value) => {
   document.title = value ? `Silent Auction - ${value}` : 'Silent Auction'
-})
-
-async function doLogout() {
-  if (confirm('Are you sure you want to logout?')) {
-    await logout()
-  }
-}
-
-onMounted(() => {
-  fetchMe()
 })
 </script>
 
@@ -35,10 +24,6 @@ onMounted(() => {
       <RouterLink to="/" class="navbar-title"
         ><span><strong>Silent Auction</strong></span></RouterLink
       >
-      <RouterLink to="/about">About</RouterLink>
-      <RouterLink to="/admin" v-if="me?.role === 1">Admin</RouterLink>
-      <RouterLink to="/login" v-if="!me">Login</RouterLink>
-      <a v-else @click="doLogout">Logout</a>
     </nav>
 
     <main class="content">

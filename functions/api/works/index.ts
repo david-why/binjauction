@@ -1,4 +1,4 @@
-import { createRandomId, obfuscatePhone } from "$/utils"
+import { obfuscatePhone } from "$/utils"
 
 const GET_WORKS_SQL = `
 SELECT
@@ -6,35 +6,30 @@ SELECT
     w.name AS work_name,
     w.description,
     w.img,
-    w.minBid,
+    w.min_bid AS minBid,
     w.hidden,
     b.id AS highest_bid_id,
     b.amount AS highest_bid,
     b.timestamp AS highest_bid_timestamp,
-    u.id AS user_id,
-    u.name AS user_name,
-    u.role AS user_role,
-    u.phone AS user_phone
+    b.user_name AS user_name,
+    b.phone AS user_phone
 FROM works w
 LEFT JOIN bids b ON w.id = b.work_id AND b.amount = (
     SELECT MAX(amount) FROM bids WHERE work_id = w.id
-)
-LEFT JOIN users u ON b.user_id = u.id
+);
 `
 
 declare interface WorksQueryRow {
-  work_id: string
+  work_id: number
   work_name: string
   description: string
   img: string
   minBid: number
   hidden: boolean
-  highest_bid_id: string | null
+  highest_bid_id: number | null
   highest_bid: number | null
   highest_bid_timestamp: number | null
-  user_id: string | null
   user_name: string | null
-  user_role: number | null
   user_phone: string | null
 }
 
@@ -50,17 +45,12 @@ export const onRequestGet: AuctionPagesFunction = async (context) => {
     highestBid: row.highest_bid_id ? {
       id: row.highest_bid_id,
       amount: row.highest_bid!,
-      user: {
-        id: row.user_id!,
-        name: row.user_name!,
-        role: row.user_role!,
-        obfsPhone: obfuscatePhone(row.user_phone!),
-        isSelf: context.data.user?.id === row.user_id!,
-      },
+      userName: row.user_name!,
+      obfsPhone: obfuscatePhone(row.user_phone!),
       timestamp: row.highest_bid_timestamp!,
     } : null,
   }))
-  if (context.data.user?.role !== 1) {
+  if (!context.data.isAdmin) {
     works = works.filter((work) => !work.hidden)
   }
   return Response.json(works)
@@ -68,10 +58,9 @@ export const onRequestGet: AuctionPagesFunction = async (context) => {
 
 export const onRequestPost: AuctionPagesFunction = async (context) => {
   const body = await context.request.json<Work>()
-  const id = createRandomId()
   await context.env.DB.prepare(`
-    INSERT INTO works (id, name, description, img, minBid)
-    VALUES (?, ?, ?, ?, ?);
-  `).bind(id, body.name, body.description, body.img, body.minBid).run()
-  return Response.json({ id }, { status: 201 })
+    INSERT INTO works (name, description, img, min_bid)
+    VALUES (?, ?, ?, ?);
+  `).bind(body.name, body.description, body.img, body.minBid).run()
+  return Response.json({}, { status: 201 })
 }

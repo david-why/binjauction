@@ -11,7 +11,7 @@ declare global {
     SMS_NOTIFY_TEMPLATE_CODE: string
   }
   interface ContextData extends Record<string, unknown> {
-    user: User | null
+    isAdmin: boolean
     accessToken: string | null
   }
   type AuctionPagesFunction<Params extends string = string> = PagesFunction<Env, Params, ContextData>

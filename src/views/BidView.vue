@@ -1,24 +1,17 @@
 <script setup lang="ts">
 import LoaderIcon from '@/components/LoaderIcon.vue'
 import LoadingButton from '@/components/LoadingButton.vue'
-import { fetchMe, fetchWork, me, placeBid, updateUserName } from '@/service'
-import { getDisplayBid, title } from '@/utils'
+import R2Image from '@/components/R2Image.vue'
+import { checkAdmin, fetchWork, placeBid } from '@/service'
+import { getDisplayBid, phone, title, userName } from '@/utils'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-const workId = route.params.id as string
+const workId = Number(route.params.id as string)
 
 const bidAmount = ref<number | ''>('')
-const name = ref('')
-watch(
-  me,
-  (me) => {
-    name.value = me?.name || ''
-  },
-  { immediate: true },
-)
 
 const isPlacingBid = ref(false)
 const loading = ref(true)
@@ -32,6 +25,15 @@ const bidMin = computed(() => {
     return work.value.highestBid.amount + 10
   }
   return work.value.minBid
+})
+const bidMax = computed(() => {
+  if (!work.value) {
+    return 200
+  }
+  if (work.value.highestBid) {
+    return work.value.highestBid.amount + 100
+  }
+  return work.value.minBid + 100
 })
 watch(
   bidMin,
@@ -51,9 +53,9 @@ async function doPlaceBid() {
     return
   }
   if (
-    !name.value ||
-    name.value.length > 100 ||
-    ['<', '>', '&', '"', "'"].some((c) => name.value.includes(c))
+    !userName.value ||
+    userName.value.length > 100 ||
+    ['<', '>', '&', '"', "'"].some((c) => userName.value.includes(c))
   ) {
     alert('Your name is invalid. Please check that you did not use any special characters.')
     return
@@ -61,17 +63,7 @@ async function doPlaceBid() {
   if (confirm(`Place a bid of ¥${bidAmount.value}? You CANNOT take back your bid!`)) {
     isPlacingBid.value = true
     try {
-      if (name.value !== me.value?.name) {
-        await updateUserName(name.value)
-      }
-    } catch (error) {
-      console.error(error)
-      alert('Your name is invalid. Please check that you did not use any special characters.')
-      isPlacingBid.value = false
-      return
-    }
-    try {
-      await placeBid(workId, bidAmount.value)
+      await placeBid(workId, phone.value, userName.value, bidAmount.value)
     } catch (error) {
       console.error(error)
       alert('Failed to place bid! Someone was probably faster than you...')
@@ -82,9 +74,11 @@ async function doPlaceBid() {
 
 onMounted(async () => {
   title.value = ''
-  fetchMe()
   work.value = await fetchWork(workId)
   if (!work.value) {
+    router.push('/')
+  }
+  if (work.value.hidden && !(await checkAdmin())) {
     router.push('/')
   }
   title.value = work.value.name
@@ -97,17 +91,24 @@ onMounted(async () => {
   <div v-else-if="work">
     <h1>{{ work.name }}</h1>
     <div>
-      <img class="work-image" :src="work.img" />
+      <R2Image class="work-image" :src="work.img"></R2Image>
     </div>
     <p class="raw-text" v-html="work.description"></p>
     <div>
       <p><strong>Current bid</strong>: {{ displayBid }}</p>
     </div>
     <h2>Place a Bid</h2>
-    <div v-if="me">
+    <p v-if="work.hidden">
+      You cannot bid on a hidden work. In fact, only admins can see this work.
+    </p>
+    <div v-else>
       <p>
         <b>Minimum bid</b>: ¥{{ bidMin }}
         <span v-if="work.highestBid">(at least ¥10 higher than the current highest bid)</span>
+      </p>
+      <p>
+        <b>Maximum bid</b>: ¥{{ bidMax }}
+        <span v-if="work.highestBid">(at most ¥100 higher than the current highest bid)</span>
       </p>
       <form @submit.prevent="doPlaceBid">
         <div class="input-form bid-form">
@@ -117,6 +118,7 @@ onMounted(async () => {
               id="bidAmount"
               type="number"
               :min="bidMin"
+              :max="bidMax"
               autocomplete="off"
               :disabled="isPlacingBid"
               required
@@ -124,14 +126,32 @@ onMounted(async () => {
             />
           </div>
           <div>
+            <label for="phone" class="required-label">Your phone</label>
+            <input
+              id="phone"
+              type="tel"
+              autocomplete="tel-national"
+              :disabled="isPlacingBid"
+              required
+              v-model="phone"
+            />
+          </div>
+          <div>
+            <div></div>
+            <div>
+              This phone number is only visible to the organizers. They will contact you if you win
+              the auction.
+            </div>
+          </div>
+          <div>
             <label for="name" class="required-label">Your name</label>
             <input
               id="name"
               type="text"
-              autocomplete="off"
+              autocomplete="name"
               :disabled="isPlacingBid"
               required
-              v-model="name"
+              v-model="userName"
             />
           </div>
           <div>
@@ -143,10 +163,6 @@ onMounted(async () => {
           </div>
         </div>
       </form>
-    </div>
-    <div v-else>
-      <p>You need to log in to place a bid.</p>
-      <button @click="router.push('/login')">Log in</button>
     </div>
   </div>
 </template>

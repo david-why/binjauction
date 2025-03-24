@@ -1,6 +1,6 @@
 declare global {
   interface Work {
-    id: string
+    id: number
     name: string
     description: string
     img: string
@@ -13,39 +13,18 @@ declare global {
   }
 
   interface BidBase {
-    id: string
+    id: number
     amount: number
     timestamp: number
+    userName: string
   }
 
   interface Bid extends BidBase {
-    user: UserObfuscated
+    obfsPhone: string
   }
 
   interface BidAdmin extends BidBase {
-    user: User
-  }
-
-  interface UserBase {
-    id: string
-    name: string
-    role: number
-  }
-
-  interface User extends UserBase {
     phone: string
-  }
-
-  interface UserObfuscated extends UserBase {
-    obfsPhone: string
-    isSelf: boolean
-  }
-
-  interface UserLogin {
-    id: string
-    code: string
-    user_id: string
-    expires_at: number
   }
 
   interface Config {

@@ -1,12 +1,9 @@
-import { pick } from '@/utils'
-import { ref } from 'vue'
+import { accessToken, pick } from '@/utils'
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL as string
 
-const cachedMe = ref<User | null>()
-
-export function getAccessToken(): string | null {
-  return localStorage.getItem('accessToken')
+export function getAccessToken(): string {
+  return accessToken.value
 }
 
 type Json = string | number | boolean | null | Json[] | object
@@ -15,6 +12,7 @@ interface FetchInit {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   headers?: Record<string, string>
   body?: Json | FormData
+  admin?: boolean
 }
 
 class FetchError extends Error {
@@ -23,9 +21,9 @@ class FetchError extends Error {
   }
 }
 
-async function fetchJson<T>(path: string, { method = 'GET', headers = {}, body }: FetchInit = {}): Promise<T> {
+async function fetchJson<T>(path: string, { method = 'GET', headers = {}, body, admin }: FetchInit = {}): Promise<T> {
   const token = getAccessToken()
-  if (token) {
+  if (token && admin) {
     headers['x-access-token'] = token
   }
   let requestBody = undefined
@@ -38,10 +36,6 @@ async function fetchJson<T>(path: string, { method = 'GET', headers = {}, body }
     }
   }
   const response = await fetch(`${BACKEND_BASE_URL}${path}`, { method, headers, body: requestBody })
-  if (response.headers.get('x-token-invalid') === '1') {
-    cachedMe.value = null
-    localStorage.removeItem('accessToken')
-  }
   if (!response.ok) {
     throw new FetchError(response)
   }
@@ -49,103 +43,61 @@ async function fetchJson<T>(path: string, { method = 'GET', headers = {}, body }
 }
 
 export async function fetchWorks() {
-  return await fetchJson<WorkDetail[]>(`/works`)
+  return await fetchJson<WorkDetail[]>(`/works`, { admin: true }) // hidden
 }
 
-export async function fetchWork(id: string) {
+export async function fetchWork(id: number) {
   return await fetchJson<WorkDetail>(`/works/${id}`)
 }
 
-export async function placeBid(workId: string, amount: number) {
+export async function placeBid(workId: number, phone: string, userName: string, amount: number) {
   await fetchJson(`/works/${workId}/bids`, {
     method: 'POST',
-    body: { amount },
+    body: { phone, userName, amount },
   })
-}
-
-export async function login(phone: string) {
-  cachedMe.value = undefined
-  localStorage.removeItem('accessToken')
-  const response = await fetchJson<{ sessionToken: string }>(`/login`, {
-    method: 'POST',
-    body: { phone },
-  });
-  return response.sessionToken
-}
-
-export async function verify(sessionToken: string, code: string) {
-  const response = await fetchJson<{ accessToken: string }>(`/login/code`, {
-    method: 'POST',
-    body: { sessionToken, code },
-  });
-  localStorage.setItem('accessToken', response.accessToken)
-  fetchMe() // don't await because it's fine
-}
-
-export async function logout() {
-  cachedMe.value = null
-  localStorage.removeItem('accessToken')
-  fetchJson(`/logout`, { method: 'POST' }) // we don't need to wait for this
-}
-
-export async function fetchMe() {
-  if (cachedMe.value !== undefined) {
-    return cachedMe.value
-  }
-  if (!getAccessToken()) {
-    cachedMe.value = null
-    return null
-  }
-  try {
-    cachedMe.value = await fetchJson<User>(`/me`)
-    return cachedMe.value
-  } catch (error) {
-    if (error instanceof FetchError && error.response.status === 401) {
-      localStorage.removeItem('accessToken')
-    }
-    cachedMe.value = undefined
-    throw error
-  }
 }
 
 export async function upload(file: Blob) {
   const formData = new FormData()
   formData.append('file', file)
-  const resp = await fetchJson<{ key: string, url: string }>(`/upload`, {
+  const resp = await fetchJson<{ key: string }>(`/upload`, {
     method: 'POST',
     body: formData,
+    admin: true,
   })
   return resp
 }
 
 export async function createWork(work: Omit<Work, 'id' | 'hidden'>) {
-  const { id } = await fetchJson<{ id: string }>(`/works`, {
+  await fetchJson<{ id: string }>(`/works`, {
     method: 'POST',
     body: work,
+    admin: true,
   })
-  return id
 }
 
 export async function updateWork(work: Work) {
   await fetchJson(`/works/${work.id}`, {
     method: 'PUT',
     body: pick(work, ['name', 'description', 'minBid', 'hidden']),
+    admin: true,
   })
 }
 
-export async function deleteWork(id: string) {
-  await fetchJson(`/works/${id}`, { method: 'DELETE' })
+export async function deleteWork(id: number) {
+  await fetchJson(`/works/${id}`, { method: 'DELETE', admin: true })
 }
 
-export async function fetchBids(workId: string) {
-  return await fetchJson<BidAdmin[]>(`/works/${workId}/bids`)
+export async function fetchBids(workId: number) {
+  return await fetchJson<BidAdmin[]>(`/works/${workId}/bids`, { admin: true })
 }
 
-export async function updateUserName(name: string) {
-  await fetchJson(`/me`, {
-    method: 'PATCH',
-    body: { name },
-  })
+export async function checkAdmin() {
+  try {
+    await fetchJson(`/auth/check`, { admin: true })
+    return true
+  } catch (e) {
+    console.error(e)
+    return false
+  }
 }
-
-export { cachedMe as me }

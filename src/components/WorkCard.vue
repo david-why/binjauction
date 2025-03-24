@@ -2,6 +2,7 @@
 import { getDisplayBid } from '@/utils'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import R2Image from './R2Image.vue'
 const router = useRouter()
 
 const props = defineProps<{
@@ -20,10 +21,10 @@ function bidWork() {
 <template>
   <div class="work" @click="bidWork">
     <div class="work-img">
-      <img :src="work.img" :alt="work.name" />
+      <R2Image :src="work.img" :alt="work.name"></R2Image>
     </div>
     <div>
-      <h3 class="work-title">{{ work.name }}</h3>
+      <h3 class="work-title">{{ work.name }}{{ work.hidden ? ' (Hidden)' : '' }}</h3>
       <p class="work-bid-line"><strong>Current bid</strong>: {{ displayBid }}</p>
     </div>
   </div>

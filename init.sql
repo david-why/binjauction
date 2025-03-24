@@ -1,0 +1,35 @@
+DROP TABLE IF EXISTS works;
+
+CREATE TABLE IF NOT EXISTS works (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    img TEXT NOT NULL,
+    min_bid INTEGER,
+    hidden INTEGER NOT NULL DEFAULT 0
+);
+
+DROP TABLE IF EXISTS bids;
+
+CREATE TABLE IF NOT EXISTS bids (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    work_id INTEGER NOT NULL,
+    amount INTEGER NOT NULL,
+    timestamp REAL NOT NULL,
+    phone TEXT NOT NULL,
+    user_name TEXT NOT NULL,
+    FOREIGN KEY(work_id) REFERENCES works(id) ON DELETE CASCADE
+);
+
+/* for CHECK_ADD_BID */
+CREATE INDEX IF NOT EXISTS bids_work_id ON bids(work_id);
+
+DROP TABLE IF EXISTS admins;
+
+CREATE TABLE IF NOT EXISTS admins (
+    token TEXT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS config (
+    value TEXT NOT NULL
+);

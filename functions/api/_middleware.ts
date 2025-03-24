@@ -1,13 +1,6 @@
 const RESOLVE_TOKEN_SQL = `
-SELECT users.*, user_tokens.expires_at AS token_expires_at
-FROM users
-JOIN user_tokens ON users.id = user_tokens.user_id
-WHERE user_tokens.id = ?;
+SELECT 1 FROM admins WHERE token = ?
 `
-
-interface UserWithToken extends User {
-  token_expires_at: number
-}
 
 const errorHandler: AuctionPagesFunction = async (context) => {
   try {
@@ -53,25 +46,14 @@ const cors: AuctionPagesFunction = async (context) => {
 
 const auth: AuctionPagesFunction = async (context) => {
   const token = context.request.headers.get('x-access-token')
-  let isInvalid = false
   if (token) {
-    const user = await context.env.DB.prepare(RESOLVE_TOKEN_SQL).bind(token).first<UserWithToken>()
-    isInvalid = !user
-    if (user && user.token_expires_at < Date.now()) {
-      await context.env.DB.prepare('DELETE FROM user_tokens WHERE expires_at < ?').bind(Date.now()).run()
-      isInvalid = true
-    }
-    context.data.user = user
+    context.data.isAdmin = !!await context.env.DB.prepare(RESOLVE_TOKEN_SQL).bind(token).first<1>()
     context.data.accessToken = token
   } else {
-    context.data.user = null
+    context.data.isAdmin = false
     context.data.accessToken = null
   }
-  const response = await context.next()
-  if (isInvalid) {
-    response.headers.set('x-token-invalid', '1')
-  }
-  return response
+  return await context.next()
 }
 
 export const onRequest = [errorHandler, cors, auth]
