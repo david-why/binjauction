@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import EditWorkForm from './EditWorkForm.vue'
 import R2Image from './R2Image.vue'
+import WorkBidTable from './WorkBidTable.vue'
 
 const work = defineModel<WorkDetail>({ required: true })
 const emit = defineEmits<{ refresh: [] }>()
@@ -17,6 +18,7 @@ function refreshWorks() {
   <div class="work-details" ref="root">
     <R2Image v-if="work.img" class="work-image" :src="work.img" :alt="work.name"></R2Image>
     <EditWorkForm class="edit-form" v-model="work" @refresh="refreshWorks"></EditWorkForm>
+    <WorkBidTable :work></WorkBidTable>
   </div>
 </template>
 

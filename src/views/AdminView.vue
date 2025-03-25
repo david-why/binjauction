@@ -48,8 +48,7 @@ async function checkRefreshData(doAlert: boolean = true) {
 async function refreshData() {
   isLoading.value = true
   try {
-    works.value = await fetchWorks()
-    ;({ allowBid: allowBid.value } = await fetchConfig())
+    ;[works.value, { allowBid: allowBid.value }] = await Promise.all([fetchWorks(), fetchConfig()])
   } finally {
     isLoading.value = false
   }

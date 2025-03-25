@@ -57,6 +57,13 @@ export async function placeBid(workId: number, phone: string, userName: string, 
   })
 }
 
+export async function deleteBid(bidId: number) {
+  await fetchJson(`/bids/${bidId}`, {
+    method: 'DELETE',
+    admin: true,
+  })
+}
+
 export async function upload(file: Blob) {
   const formData = new FormData()
   formData.append('file', file)

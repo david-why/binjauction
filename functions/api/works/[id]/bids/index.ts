@@ -15,7 +15,7 @@ SELECT
     b.id,
     b.amount,
     b.timestamp,
-    b.name AS user_name,
+    b.user_name AS user_name,
     b.phone AS user_phone
 FROM bids b
 WHERE b.work_id = ?;
