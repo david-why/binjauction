@@ -2,7 +2,9 @@
 import AdminWorkDetail from '@/components/AdminWorkDetail.vue'
 import CreateWorkForm from '@/components/CreateWorkForm.vue'
 import LoaderIcon from '@/components/LoaderIcon.vue'
-import { checkAdmin, fetchWorks } from '@/service'
+import LoadingButton from '@/components/LoadingButton.vue'
+import ToggleButton from '@/components/ToggleButton.vue'
+import { checkAdmin, fetchConfig, fetchWorks, setConfig } from '@/service'
 import { accessToken, title } from '@/utils'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -13,8 +15,11 @@ const imageUrl = ref<string | null>(null)
 
 const works = ref<WorkDetail[]>([])
 
+const allowBid = ref(false)
+
 const isValidToken = ref(false)
 const isLoading = ref(false)
+const isUpdatingConfig = ref(false)
 const isWorkOpen = ref<Record<string, boolean>>({})
 watch(accessToken, () => (isValidToken.value = false))
 
@@ -27,7 +32,7 @@ watch(file, (file) => {
   }
 })
 
-async function checkRefreshWorks(doAlert: boolean = true) {
+async function checkRefreshData(doAlert: boolean = true) {
   isLoading.value = true
   if (!(await checkAdmin())) {
     if (doAlert) {
@@ -37,15 +42,25 @@ async function checkRefreshWorks(doAlert: boolean = true) {
     return
   }
   isValidToken.value = true
-  await refreshWorks()
+  await refreshData()
 }
 
-async function refreshWorks() {
+async function refreshData() {
   isLoading.value = true
   try {
     works.value = await fetchWorks()
+    ;({ allowBid: allowBid.value } = await fetchConfig())
   } finally {
     isLoading.value = false
+  }
+}
+
+async function updateConfig() {
+  isUpdatingConfig.value = true
+  try {
+    await setConfig({ allowBid: allowBid.value })
+  } finally {
+    isUpdatingConfig.value = false
   }
 }
 
@@ -56,7 +71,7 @@ function exportQrcodes() {
 onMounted(() => {
   title.value = 'Admin'
   if (accessToken.value) {
-    checkRefreshWorks(false)
+    checkRefreshData(false)
   }
 })
 </script>
@@ -64,7 +79,7 @@ onMounted(() => {
 <template>
   <div>
     <h1>Admin Panel</h1>
-    <form v-if="!isValidToken" @submit.prevent="checkRefreshWorks()">
+    <form v-if="!isValidToken" @submit.prevent="checkRefreshData()">
       <div class="input-form">
         <div>
           <label for="accessToken">Passphrase</label>
@@ -84,17 +99,32 @@ onMounted(() => {
       <div v-for="(work, index) in works" :key="work.id">
         <details @toggle="isWorkOpen[work.id] = !isWorkOpen[work.id]" :open="isWorkOpen[work.id]">
           <summary>
-            <h3 class="work-title">{{ work.name }}</h3>
+            <h3 class="work-title">{{ work.name }}{{ work.hidden ? ' (Hidden)' : '' }}</h3>
           </summary>
           <AdminWorkDetail
             v-model="works[index]"
-            @refresh="refreshWorks"
+            @refresh="refreshData"
             v-if="isWorkOpen[work.id]"
           ></AdminWorkDetail>
         </details>
       </div>
+      <h2>Website Settings</h2>
+      <form @submit.prevent="updateConfig">
+        <div class="input-form">
+          <div>
+            <label for="allowBid">Allow Bid</label>
+            <ToggleButton v-model="allowBid"></ToggleButton>
+          </div>
+          <div class="row">
+            <div>Turn this on to allow bidding.</div>
+          </div>
+        </div>
+        <div style="margin-top: 1em">
+          <LoadingButton :loading="isUpdatingConfig" type="submit">Update config</LoadingButton>
+        </div>
+      </form>
       <h2>Upload work</h2>
-      <CreateWorkForm @uploaded="refreshWorks"></CreateWorkForm>
+      <CreateWorkForm @uploaded="refreshData"></CreateWorkForm>
     </div>
   </div>
 </template>

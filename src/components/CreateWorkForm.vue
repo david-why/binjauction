@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createWork, upload } from '@/service'
-import { ref, watch } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
 
 const emit = defineEmits<{
   uploaded: []
@@ -72,10 +72,21 @@ async function doUploadWork() {
   } catch (e) {
     console.error(e)
     alert('Failed to upload work. Please try again.')
+    return
   } finally {
     isUploading.value = false
   }
+  file.value = null
+  name.value = ''
+  description.value = ''
+  minBid.value = 100
 }
+
+onUnmounted(() => {
+  if (imageUrl.value) {
+    URL.revokeObjectURL(imageUrl.value)
+  }
+})
 </script>
 
 <template>
@@ -98,16 +109,16 @@ async function doUploadWork() {
       <img v-if="imageUrl" :src="imageUrl" class="image-preview" />
       <div class="input-form">
         <div>
-          <label for="name">Title</label>
-          <input id="name" type="text" v-model="name" />
+          <label for="create-name">Title</label>
+          <input id="create-name" type="text" v-model="name" />
         </div>
         <div>
-          <label for="description">Description</label>
-          <textarea id="description" rows="5" v-model="description"></textarea>
+          <label for="create-description">Description</label>
+          <textarea id="create-description" rows="5" v-model="description"></textarea>
         </div>
         <div>
-          <label for="minBid">Minimum Bid</label>
-          <input id="minBid" type="number" min="10" step="10" v-model="minBid" />
+          <label for="create-minBid">Minimum Bid</label>
+          <input id="create-minBid" type="number" min="10" step="10" v-model="minBid" />
         </div>
       </div>
       <div style="margin-top: 1em">

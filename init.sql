@@ -27,7 +27,8 @@ CREATE INDEX IF NOT EXISTS bids_work_id ON bids(work_id);
 DROP TABLE IF EXISTS admins;
 
 CREATE TABLE IF NOT EXISTS admins (
-    token TEXT PRIMARY KEY
+    token TEXT PRIMARY KEY,
+    description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS config (

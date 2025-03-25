@@ -2,7 +2,7 @@
 import LoaderIcon from '@/components/LoaderIcon.vue'
 import LoadingButton from '@/components/LoadingButton.vue'
 import R2Image from '@/components/R2Image.vue'
-import { checkAdmin, fetchWork, placeBid } from '@/service'
+import { checkAdmin, fetchConfig, fetchWork, placeBid } from '@/service'
 import { getDisplayBid, phone, title, userName } from '@/utils'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -16,6 +16,7 @@ const bidAmount = ref<number | ''>('')
 const isPlacingBid = ref(false)
 const loading = ref(true)
 const work = ref<WorkDetail | null>(null)
+const config = ref<Config | null>(null)
 
 const bidMin = computed(() => {
   if (!work.value) {
@@ -60,6 +61,10 @@ async function doPlaceBid() {
     alert('Your name is invalid. Please check that you did not use any special characters.')
     return
   }
+  if (!/^1[3456789]\d{9}$/.test(phone.value)) {
+    alert('Please enter a valid, 11-digit, Chinese phone number.')
+    return
+  }
   if (confirm(`Place a bid of ¥${bidAmount.value}? You CANNOT take back your bid!`)) {
     isPlacingBid.value = true
     try {
@@ -74,7 +79,14 @@ async function doPlaceBid() {
 
 onMounted(async () => {
   title.value = ''
-  work.value = await fetchWork(workId)
+  try {
+    work.value = await fetchWork(workId)
+    config.value = await fetchConfig()
+  } catch (e) {
+    console.error(e)
+    router.push('/')
+    return
+  }
   if (!work.value) {
     router.push('/')
   }
@@ -101,6 +113,7 @@ onMounted(async () => {
     <p v-if="work.hidden">
       You cannot bid on a hidden work. In fact, only admins can see this work.
     </p>
+    <p v-else-if="!config?.allowBid">Bidding is currently disabled. Please check back later.</p>
     <div v-else>
       <p>
         <b>Minimum bid</b>: ¥{{ bidMin }}

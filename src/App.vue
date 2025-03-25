@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 import { title } from './utils'
+import { checkAdmin } from './service'
 
 const FOOTER_DOMAINS = (import.meta.env.VITE_FOOTER_DOMAINS as string) || '{}'
 const FOOTER =
@@ -12,8 +13,16 @@ const ICP_DOMAINS = (import.meta.env.VITE_FOOTER_ICP_DOMAINS as string) || '{}'
 const ICP = JSON.parse(ICP_DOMAINS)[window.location.hostname] || ''
 const ICP_URL = (import.meta.env.VITE_FOOTER_ICP_URL as string) || ''
 
+const isAdmin = ref(false)
+
 watch(title, (value) => {
   document.title = value ? `Silent Auction - ${value}` : 'Silent Auction'
+})
+
+onMounted(async () => {
+  if (await checkAdmin()) {
+    isAdmin.value = true
+  }
 })
 </script>
 
@@ -24,6 +33,7 @@ watch(title, (value) => {
       <RouterLink to="/" class="navbar-title"
         ><span><strong>Silent Auction</strong></span></RouterLink
       >
+      <RouterLink to="/admin" v-if="isAdmin">Admin</RouterLink>
     </nav>
 
     <main class="content">

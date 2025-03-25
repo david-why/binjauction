@@ -37,7 +37,7 @@ declare interface WorksQueryRow {
 export const onRequestGet: AuctionPagesFunction = async (context) => {
   const id = Number(context.params.id as string)
   const value = await context.env.DB.prepare(GET_WORK_SQL).bind(id).first<WorksQueryRow>()
-  if (!value) {
+  if (!value || (value.hidden && !context.data.isAdmin)) {
     return Response.json({ error: 'Work not found' }, { status: 404 })
   }
   const work: WorkDetail = {

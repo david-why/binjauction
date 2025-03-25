@@ -47,7 +47,7 @@ export async function fetchWorks() {
 }
 
 export async function fetchWork(id: number) {
-  return await fetchJson<WorkDetail>(`/works/${id}`)
+  return await fetchJson<WorkDetail>(`/works/${id}`, { admin: true }) // hidden
 }
 
 export async function placeBid(workId: number, phone: string, userName: string, amount: number) {
@@ -100,4 +100,22 @@ export async function checkAdmin() {
     console.error(e)
     return false
   }
+}
+
+let cachedConfig: Config | null = null
+
+export async function fetchConfig(force: boolean = false) {
+  if (!force && cachedConfig) {
+    return cachedConfig
+  }
+  return cachedConfig = await fetchJson<Config>('/config')
+}
+
+export async function setConfig(config: Config) {
+  await fetchJson('/config', {
+    method: 'PUT',
+    body: config,
+    admin: true,
+  })
+  cachedConfig = null
 }

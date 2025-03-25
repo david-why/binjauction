@@ -28,7 +28,7 @@ declare global {
   }
 
   interface Config {
-    isOpen: boolean
+    allowBid: boolean
   }
 }
 

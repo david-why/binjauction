@@ -5,9 +5,9 @@ INSERT INTO bids (work_id, user_name, phone, amount, timestamp)
 SELECT ?, ?, ?, ?, ?
 WHERE
     ? BETWEEN
-        COALESCE((SELECT MAX(amount) FROM bids WHERE work_id = ?) + 10, 100)
+        COALESCE((SELECT MAX(amount) FROM bids WHERE work_id = ?) + 10, (SELECT min_bid FROM works WHERE id = ?))
     AND
-        COALESCE((SELECT MAX(amount) FROM bids WHERE work_id = ?) + 100, 200);
+        COALESCE((SELECT MAX(amount) FROM bids WHERE work_id = ?), (SELECT min_bid FROM works WHERE id = ?)) + 100;
 `
 
 const GET_BIDS_SQL = `
@@ -57,7 +57,7 @@ export const onRequestPost: AuctionPagesFunction = async (context) => {
   const phone = body.phone
   const amount = body.amount
   const result = await context.env.DB.prepare(CHECK_ADD_BID_SQL).bind(
-    workId, userName, phone, amount, timestamp, amount, workId, workId
+    workId, userName, phone, amount, timestamp, amount, workId, workId, workId, workId
   ).run()
   if (result.meta.changes === 0) {
     return Response.json({ error: 'Invalid bid' }, { status: 409 })
